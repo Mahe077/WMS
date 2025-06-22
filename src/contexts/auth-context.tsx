@@ -145,15 +145,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // In a real app, validate the token with your backend
           const response = await validateTokenApi(token);
 
-          if (response.ok) {
-            const data = await response.json()
-            dispatch({
-              type: "LOGIN_SUCCESS",
-              payload: { user: data.user, token },
-            })
-          } else {
-            safeStorage.removeItem("wms_token")
-          }
+          const { user, token: newToken } = response
+          dispatch({
+            type: "LOGIN_SUCCESS",
+            payload: { user, token: newToken },
+          })
         } catch {
           safeStorage.removeItem("wms_token")
 
@@ -176,8 +172,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await loginApi(email, password);
 
-      const data = await response
-      const { user, token } = data
+      // const data = await response
+      const { user, token } = response
 
       // Store token in localStorage
       safeStorage.setItem("wms_token", token)

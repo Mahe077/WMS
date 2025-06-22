@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -32,6 +34,7 @@ import {
 // import { ReturnsModule } from "@/components/returns-module"
 // import { ReportsModule } from "@/components/reports-module"
 // import { UserManagementModule } from "@/components/user-management-module"
+import { LoadingDemo } from "@/components/ui/loading-demo"
 import { ProtectedComponent } from "@/components/common/protected-component"
 import { ProtectedRoute } from "@/components/common/protected-route"
 import { NotificationToast } from "@/components/common/notification-toast"
@@ -40,10 +43,21 @@ import { AlertType } from "@/lib/enum"
 import { useApp, useNotifications } from "@/contexts/app-context"
 import { useAuth } from "@/contexts/auth-context"
 
+import { UserProfileButton } from "@/components/common/user-profile-button"
+import { NotificationButton } from "@/components/common/notification-button"
+import { SettingsPanel } from "@/components/common/settings-panel"
+import { NotificationPanel } from "@/components/common/notification-panel"
+import { LogoutConfirmDialog } from "@/components/common/logout-confirm-dialog"
+
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
   const { addNotification } = useNotifications()
   const { state: authState, logout, can } = useAuth()
+
+  const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false)
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   const stats = [
     {
@@ -95,6 +109,8 @@ function WMSDashboardContent() {
     { id: "returns", label: "Returns", icon: RefreshCw, permission: "view:returns" },
     { id: "reports", label: "Reports", icon: BarChart3, permission: "view:reports" },
     { id: "users", label: "Users", icon: Users, permission: "view:users", role: ["admin", "manager"] },
+    { id: "settings", label: "Settings", icon: Settings, permission: "view:settings", role: ["admin", "manager"] },
+    { id: "loading-demo", label: "Loading Demo", icon: Clock, permission: null }, // For demo purposes
   ]
 
   const handleModuleChange = (moduleId: string) => {
@@ -179,63 +195,94 @@ function WMSDashboardContent() {
       //       <UserManagementModule />
       //     </ProtectedComponent>
       //   )
+      case "loading-demo":
+        return (
+          <div className="flex items-center justify-center h-full">
+            <LoadingDemo />
+          </div>
+        )
       default:
         return <DashboardContent stats={stats} alerts={alerts} />
     }
   }
 
+  const handleLogout = () => {
+    logout()
+    setShowLogoutDialog(false)
+    addNotification({
+      type: "info",
+      message: "You have been logged out successfully",
+    })
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 sticky top-0 z-40">
+      <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center justify-between">
+          {/* Left Section - Logo and Mobile Menu */}
           <div className="flex items-center space-x-4">
+            {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               onClick={() => dispatch({ type: "TOGGLE_SIDEBAR" })}
             >
               {state.sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <div className="flex items-center space-x-2">
-              <Warehouse className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">3PL WMS</h1>
+
+            {/* Logo Section */}
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Warehouse className="h-8 w-8 lg:h-10 lg:w-10 text-blue-600" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">3PL WMS</h1>
+                <span className="text-xs text-gray-500 hidden sm:block">Warehouse Management</span>
+              </div>
+              <Badge variant="secondary" className="hidden md:inline-flex bg-blue-50 text-blue-700 border-blue-200">
+                v2.1.0
+              </Badge>
             </div>
-            <Badge variant="secondary" className="hidden sm:inline-flex">
-              v2.1.0
-            </Badge>
           </div>
-          <div className="flex items-center space-x-2 lg:space-x-4">
+
+          {/* Right Section - Actions and User */}
+          <div className="flex items-center space-x-2 lg:space-x-3">
+            {/* Notifications */}
+            <NotificationButton onToggle={() => setNotificationPanelOpen(true)} unreadCount={10} />
+
+            {/* Settings Panel Toggle - Desktop Only */}
             <ProtectedComponent requiredRole={["admin", "manager"]}>
-              <Button variant="outline" size="sm" className="hidden sm:flex">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setSettingsPanelOpen(true)}
+              >
+                <Settings className="h-5 w-5 text-gray-600" />
               </Button>
             </ProtectedComponent>
 
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 lg:w-8 lg:h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs lg:text-sm font-medium">
-                  {authState.user?.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("") || "JD"}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium hidden sm:inline">{authState.user?.name || "John Doe"}</span>
-                <span className="text-xs text-gray-500 hidden sm:inline capitalize">{authState.user?.role}</span>
-              </div>
-            </div>
-
-            <Button variant="ghost" size="sm" onClick={() => logout()}>
-              <LogOut className="h-4 w-4" />
-              <span className="sr-only sm:not-sr-only sm:ml-2">Logout</span>
-            </Button>
+            {/* User Profile */}
+            <UserProfileButton onLogout={logout} />
           </div>
         </div>
       </header>
+
+      {/* Settings Side Panel */}
+      <SettingsPanel isOpen={settingsPanelOpen} onClose={() => setSettingsPanelOpen(false)} />
+
+      {/* Notification Panel */}
+      <NotificationPanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
+
+      {/* Logout Confirmation Dialog */}
+      <LogoutConfirmDialog
+        isOpen={showLogoutDialog}
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
 
       <div className="flex">
         {/* Sidebar Navigation */}
@@ -267,6 +314,22 @@ function WMSDashboardContent() {
                 )
               })}
             </div>
+
+            {/* Mobile-only logout section */}
+            <div className="lg:hidden pt-6 mt-6 border-t border-gray-200">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={() => {
+                  dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
+                  setShowLogoutDialog(true)
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-3" />
+                Logout
+              </Button>
+            </div>
+
 
             {/* TODO:remove this part not needed */}
             <div className="pt-6 mt-6 border-t border-gray-200">

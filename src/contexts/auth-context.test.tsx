@@ -91,17 +91,14 @@ describe("AuthProvider", () => {
   it("initializes with user if valid token", async () => {
     localStorage.setItem("wms_token", "valid-token");
     mockValidateTokenApi.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: "1",
-          name: "Test",
-          email: "t@e.com",
-          role: "admin",
-          permissions: ["read"],
-        },
-        token: "valid-token",
-      }),
+      user: {
+        id: "1",
+        name: "Test",
+        email: "t@e.com",
+        role: "admin",
+        permissions: ["read"],
+      },
+      token: "valid-token",
     });
     const { getByTestId } = render(
       <AuthProvider>
@@ -183,17 +180,14 @@ describe("AuthProvider", () => {
   it("can() returns correct permission admin", async () => {
     localStorage.setItem("wms_token", "valid-token");
     mockValidateTokenApi.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: "1",
-          name: "Test",
-          email: "t@e.com",
-          role: "admin",
-          permissions: ["read", "write"],
-        },
-        token: "valid-token",
-      }),
+      user: {
+        id: "1",
+        name: "Test",
+        email: "t@e.com",
+        role: "admin",
+        permissions: ["read", "write"],
+      },
+      token: "valid-token",
     });
     function PermTest() {
       const ctx = useContext(AuthContext) as AuthContextType;
@@ -219,17 +213,14 @@ describe("AuthProvider", () => {
   it("can() returns correct permission for non admin", async () => {
     localStorage.setItem("wms_token", "valid-token");
     mockValidateTokenApi.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: "1",
-          name: "Test",
-          email: "t@e.com",
-          role: "manager",
-          permissions: ["read"], // Only "read" permission, no "delete"
-        },
-        token: "valid-token",
-      }),
+      user: {
+        id: "1",
+        name: "Test",
+        email: "t@e.com",
+        role: "manager",
+        permissions: ["read"], // Only "read" permission, no "delete"
+      },
+      token: "valid-token",
     });
     function PermTest() {
       const ctx = useContext(AuthContext) as AuthContextType;
@@ -255,17 +246,14 @@ describe("AuthProvider", () => {
   it("hasRole() works for string and array", async () => {
     localStorage.setItem("wms_token", "valid-token");
     mockValidateTokenApi.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        user: {
-          id: "1",
-          name: "Test",
-          email: "t@e.com",
-          role: "admin",
-          permissions: [],
-        },
-        token: "valid-token",
-      }),
+      user: {
+        id: "1",
+        name: "Test",
+        email: "t@e.com",
+        role: "admin",
+        permissions: [],
+      },
+      token: "valid-token",
     });
     function RoleTest() {
       const ctx = useContext(AuthContext) as AuthContextType;

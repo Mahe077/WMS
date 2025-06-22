@@ -16,7 +16,10 @@ export async function validateTokenApi(token: string) {
   const res = await fetch("/api/auth/validate", {
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Invalid token");
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Invalid token");
+  }
   return res.json();
 }
 export async function logoutApi() {

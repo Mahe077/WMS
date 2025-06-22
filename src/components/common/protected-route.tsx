@@ -1,11 +1,10 @@
 "use client"
 
-import React from "react"
-
-import { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { useNotifications } from "@/contexts/app-context"
+import { LoadingSpinner } from "../ui/loading-spinner"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -18,46 +17,72 @@ export function ProtectedRoute({ children, requiredPermission, requiredRole }: P
   const router = useRouter()
   const pathname = usePathname()
   const { addNotification } = useNotifications()
+  
+  const [isChecking, setIsChecking] = useState(true)
+  const [hasChecked, setHasChecked] = useState(false)
 
   useEffect(() => {
     // Skip auth check for login page
-    if (pathname === "/login") return
-
-    // Check authentication
-    if (!state.isAuthenticated) {
-      router.push("/login")
+    if (pathname === "/login") {
+      setIsChecking(false)
+      setHasChecked(true)
       return
     }
 
-    // Check permission if specified
-    if (requiredPermission && !can(requiredPermission)) {
-      addNotification({
-        type: "error",
-        message: "You don't have permission to access this resource.",
-      })
-      router.push("/")
-      return
+    // Wait for auth state to be initialized
+    if (state.isAuthenticated === null || state.isAuthenticated === undefined) {
+      return // Keep showing loading until auth state is determined
     }
 
-    // Check role if specified
-    if (requiredRole && !hasRole(requiredRole)) {
-      addNotification({
-        type: "error",
-        message: "This area requires higher access level.",
-      })
-      router.push("/")
-      return
-    }
-  }, [state.isAuthenticated, requiredPermission, requiredRole, can, hasRole, router, pathname, addNotification])
+    const timer = setTimeout(() => { //TODO: remove this timeout in production
+      if (!state.isAuthenticated) {
+        router.push("/login")
+        return
+      }
+      
+      if (requiredPermission && !can(requiredPermission)) {
+        addNotification({
+          type: "error",
+          message: "You don't have permission to access this resource.",
+        })
+        router.push("/")
+        return
+      }
+      
+      if (requiredRole && !hasRole(requiredRole)) {
+        addNotification({
+          type: "error",
+          message: "This area requires higher access level.",
+        })
+        router.push("/")
+        return
+      }
 
-  // If we're checking permissions and not authenticated yet, show loading
-  if ((requiredPermission || requiredRole) && !state.isAuthenticated) {
+      setHasChecked(true)
+      setIsChecking(false)
+    }, 5000) // Reduced timeout for better UX
+
+    return () => clearTimeout(timer)
+  }, [pathname, state.isAuthenticated, requiredPermission, requiredRole, can, hasRole, router, addNotification])
+
+  // Always show loading for protected routes until fully checked
+  if (pathname !== "/login" && (isChecking || !hasChecked)) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <LoadingSpinner variant="default" size="md" />
       </div>
     )
   }
 
-  return <React.Fragment>{children}</React.Fragment>
+  // Only render children after successful auth check or on login page
+  if (pathname === "/login" || (hasChecked && state.isAuthenticated)) {
+    return <>{children}</>
+  }
+
+  // Fallback loading state
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <LoadingSpinner variant="default" size="md" />
+    </div>
+  )
 }

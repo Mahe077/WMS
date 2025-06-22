@@ -3,6 +3,8 @@
 import { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { useNotifications } from "@/contexts/app-context"
+import { loginApi, validateTokenApi } from "@/lib/api/auth";
+import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
 
 // Types
 export interface User {
@@ -137,15 +139,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check for existing token on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("wms_token")
+      const token = safeStorage.getItem("wms_token")
       if (token) {
         try {
           // In a real app, validate the token with your backend
-          const response = await fetch("/api/auth/validate", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          const response = await validateTokenApi(token);
 
           if (response.ok) {
             const data = await response.json()
@@ -154,10 +152,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               payload: { user: data.user, token },
             })
           } else {
-            localStorage.removeItem("wms_token")
+            safeStorage.removeItem("wms_token")
           }
         } catch {
-          localStorage.removeItem("wms_token")
+          safeStorage.removeItem("wms_token")
+
+          dispatch({
+            type: "AUTH_FAILURE",
+            payload: { error: "Invalid or expired token" },
+          })
         }
       }
       setInitialized(true)
@@ -171,26 +174,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "AUTH_START" })
 
     try {
-      // In a real app, this would be an actual API call
-      // For demo purposes, we'll simulate a successful login with mock data
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await loginApi(email, password);
 
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Login failed")
-      }
-
-      const data = await response.json()
+      const data = await response
       const { user, token } = data
 
       // Store token in localStorage
-      localStorage.setItem("wms_token", token)
+      safeStorage.setItem("wms_token", token)
 
       dispatch({
         type: "LOGIN_SUCCESS",
@@ -217,7 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem("wms_token")
+    safeStorage.removeItem("wms_token")
     dispatch({ type: "LOGOUT" })
     addNotification({
       type: "info",
@@ -227,26 +217,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Permission check function
-  const can = (permission: string): boolean => {
-    if (!state.user) return false
-
-    // Admin role has all permissions
-    if (state.user.role === "admin") return true
-
-    // Check if user has the specific permission
-    return state.user.permissions.includes(permission)
-  }
+  const can = (permission: string) => canCheck(state.user, permission);
 
   // Role check function
-  const hasRole = (role: string | string[]): boolean => {
-    if (!state.user) return false
-
-    if (Array.isArray(role)) {
-      return role.includes(state.user.role)
-    }
-
-    return state.user.role === role
-  }
+  const hasRole = (role: string | string[]) => hasRoleCheck(state.user, role);
 
   // Don't render children until we've checked for an existing token
   if (!initialized) {

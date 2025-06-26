@@ -171,18 +171,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await loginApi(email, password);
-
-      // const data = await response
       const { user, token } = response
-
-      // Store token in localStorage
       safeStorage.setItem("wms_token", token)
-
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: { user, token },
       })
-
       addNotification({
         type: "success",
         message: `Welcome back, ${user.name}!`,

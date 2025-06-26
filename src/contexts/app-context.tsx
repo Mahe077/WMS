@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useReducer, type ReactNode } from "react"
+import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react"
 
 // Types
 interface User {
@@ -26,7 +26,7 @@ interface AppState {
   loading: boolean
   notifications: Notification[]
   pagination: Record<string, PaginationState>
-  filters: Record<string, any>
+  filters: Record<string, unknown>
   searchTerms: Record<string, string>
 }
 
@@ -46,7 +46,7 @@ type AppAction =
   | { type: "ADD_NOTIFICATION"; payload: Omit<Notification, "id" | "timestamp"> }
   | { type: "REMOVE_NOTIFICATION"; payload: string }
   | { type: "SET_PAGINATION"; payload: { module: string; pagination: PaginationState } }
-  | { type: "SET_FILTER"; payload: { module: string; filter: any } }
+  | { type: "SET_FILTER"; payload: { module: string; filter: unknown } }
   | { type: "SET_SEARCH_TERM"; payload: { module: string; term: string } }
   | { type: "CLEAR_FILTERS"; payload: string }
 
@@ -65,6 +65,30 @@ const initialState: AppState = {
   pagination: {},
   filters: {},
   searchTerms: {},
+}
+
+
+const getInitialState = (): AppState => {
+  // Check if we're in the browser environment
+  if (typeof window !== "undefined") {
+    try {
+      const savedState = localStorage.getItem("wms_app_state")
+      if (savedState) {
+        const parsed = JSON.parse(savedState)
+        return {
+          ...initialState,
+          activeModule: parsed.activeModule || "dashboard",
+          sidebarOpen: false, // Always start with sidebar closed on refresh
+          pagination: parsed.pagination || {},
+          filters: parsed.filters || {},
+          searchTerms: parsed.searchTerms || {},
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to load saved app state:", error)
+    }
+  }
+  return initialState
 }
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -139,7 +163,24 @@ const AppContext = createContext<{
 } | null>(null)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialState)
+  const [state, dispatch] = useReducer(appReducer, getInitialState())
+
+  // Persist state changes to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stateToSave = {
+          activeModule: state.activeModule,
+          pagination: state.pagination,
+          filters: state.filters,
+          searchTerms: state.searchTerms,
+        }
+        localStorage.setItem("wms_app_state", JSON.stringify(stateToSave))
+      } catch (error) {
+        console.warn("Failed to save app state:", error)
+      }
+    }
+  }, [state.activeModule, state.pagination, state.filters, state.searchTerms])
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>
 }
@@ -231,7 +272,7 @@ export function useFilters(module: string) {
   const filters = state.filters[module] || {}
   const searchTerm = state.searchTerms[module] || ""
 
-  const setFilter = (filter: any) => {
+  const setFilter = (filter: unknown) => {
     dispatch({ type: "SET_FILTER", payload: { module, filter } })
   }
 

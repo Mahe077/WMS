@@ -24,7 +24,6 @@ import {
   LogOut,
 } from "lucide-react"
 // import { ReceivingModule } from "@/components/receiving-module"
-// import { InventoryModule } from "@/components/inventory-module"
 // import { InventoryPalletView } from "@/components/inventory-pallet-view"
 // import { BaySlotBooking } from "@/components/bay-slot-booking"
 // import { DockSchedulingModule } from "@/components/dock-scheduling-module"
@@ -42,6 +41,7 @@ import { Stat, Alert } from "@/lib/types"
 import { AlertType } from "@/lib/enum"
 import { useApp, useNotifications } from "@/contexts/app-context"
 import { useAuth } from "@/contexts/auth-context"
+import { useUrlSync } from "@/hooks/use-url-sync"
 
 import { UserProfileButton } from "@/components/common/user-profile-button"
 import { NotificationButton } from "@/components/common/notification-button"
@@ -50,15 +50,20 @@ import { NotificationPanel } from "@/components/common/notification-panel"
 import { LogoutConfirmDialog } from "@/components/common/logout-confirm-dialog"
 import { StatCard } from "@/components/ui/stat-card"
 
+import { InventoryModule } from "@/components/modules/inventory-module"
+
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
   const { addNotification } = useNotifications()
   const { state: authState, logout, can } = useAuth()
 
+  // Add URL synchronization
+  useUrlSync()
+
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false)
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  // const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   const stats = [
     {
@@ -115,17 +120,11 @@ function WMSDashboardContent() {
   ]
 
   const handleModuleChange = (moduleId: string) => {
+    // The URL sync hook will handle the actual navigation
     dispatch({ type: "SET_ACTIVE_MODULE", payload: moduleId })
     dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
 
-    // Add navigation notification
-    const navItem = navigationItems.find((item) => item.id === moduleId);
-    // if (navItem) {
-    //   addNotification({
-    //     type: "info",
-    //     message: `Switched to ${navItem.label} module`,
-    //   })
-    // }
+    navigationItems.find((item) => item.id === moduleId);
   };
 
   const renderActiveModule = () => {
@@ -136,12 +135,12 @@ function WMSDashboardContent() {
       //       <ReceivingModule />
       //     </ProtectedComponent>
       //   )
-      // case "inventory":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:inventory">
-      //       <InventoryModule />
-      //     </ProtectedComponent>
-      //   )
+      case "inventory":
+        return (
+          <ProtectedComponent requiredPermission="view:inventory">
+            <InventoryModule />
+          </ProtectedComponent>
+        )
       // case "pallet-view":
       //   return (
       //     <ProtectedComponent requiredPermission="view:inventory">
@@ -377,7 +376,7 @@ function WMSDashboardContent() {
 
 function DashboardContent({ stats, alerts }: { stats: Stat[]; alerts: Alert[] }) {
   const { addNotification } = useNotifications()
-  const { can } = useAuth()
+  // const { can } = useAuth()
 
   const handleQuickAction = (action: string) => {
     addNotification({

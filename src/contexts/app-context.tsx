@@ -26,7 +26,7 @@ interface AppState {
   loading: boolean
   notifications: Notification[]
   pagination: Record<string, PaginationState>
-  filters: Record<string, unknown>
+  filters: Record<string, Record<string, unknown>> // Fixed: More specific typing
   searchTerms: Record<string, string>
 }
 
@@ -46,7 +46,7 @@ type AppAction =
   | { type: "ADD_NOTIFICATION"; payload: Omit<Notification, "id" | "timestamp"> }
   | { type: "REMOVE_NOTIFICATION"; payload: string }
   | { type: "SET_PAGINATION"; payload: { module: string; pagination: PaginationState } }
-  | { type: "SET_FILTER"; payload: { module: string; filter: unknown } }
+  | { type: "SET_FILTER"; payload: { module: string; filter: Record<string, unknown> } } // Fixed: More specific typing
   | { type: "SET_SEARCH_TERM"; payload: { module: string; term: string } }
   | { type: "CLEAR_FILTERS"; payload: string }
 
@@ -66,7 +66,6 @@ const initialState: AppState = {
   filters: {},
   searchTerms: {},
 }
-
 
 const getInitialState = (): AppState => {
   // Check if we're in the browser environment
@@ -171,9 +170,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const stateToSave = {
           activeModule: state.activeModule,
-          pagination: state.pagination,
-          filters: state.filters,
-          searchTerms: state.searchTerms,
+          // pagination: state.pagination, // Uncomment if you want to save pagination state
+          // filters: state.filters,
+          // searchTerms: state.searchTerms,
         }
         localStorage.setItem("wms_app_state", JSON.stringify(stateToSave))
       } catch (error) {
@@ -269,10 +268,11 @@ export function usePagination(module: string, totalItems: number, itemsPerPage =
 export function useFilters(module: string) {
   const { state, dispatch } = useApp()
 
-  const filters = state.filters[module] || {}
+  // Fixed: Ensure we always return Record<string, unknown>
+  const filters: Record<string, unknown> = state.filters[module] || {}
   const searchTerm = state.searchTerms[module] || ""
 
-  const setFilter = (filter: unknown) => {
+  const setFilter = (filter: Record<string, unknown>) => {
     dispatch({ type: "SET_FILTER", payload: { module, filter } })
   }
 

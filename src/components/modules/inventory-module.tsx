@@ -1,24 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { AlertTriangle, Lock, Edit, Eye, Box, ChevronsDown } from "lucide-react";
+import { AlertTriangle, Lock, Edit, Box, ChevronsDown } from "lucide-react";
 import { Pagination } from "@/components/ui/pagination";
 import {
   usePagination,
@@ -31,11 +16,17 @@ import { Stat } from "@/lib/types";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { FilterConfig } from "@/lib/types";
 import { useFilteredData } from "@/hooks/use-filters";
+import { CustomTable, TableColumn } from "@/components/common/custom-table"
 
 export function InventoryModule() {
   const { addNotification } = useNotifications();
-  const { filters, searchTerm, setFilter, setSearchTerm, clearFilters } =
-    useFilters("inventory");
+  const {
+    filters,
+    searchTerm,
+    setFilter,
+    setSearchTerm,
+    clearFilters,
+  } = useFilters("inventory");
 
   // Mock data - in real app this would come from API
   const allInventoryItems = useMemo(
@@ -47,7 +38,7 @@ export function InventoryModule() {
         qty: 150,
         location: "A-12",
         bbd: "2024-12-31",
-        status: "Available",
+        status: InventoryItemStatus.Available,
         holds: [],
       },
       {
@@ -57,7 +48,7 @@ export function InventoryModule() {
         qty: 25,
         location: "A-13",
         bbd: "2024-11-15",
-        status: "Low Stock",
+        status: InventoryItemStatus.OutOfStock,
         holds: [],
       },
       {
@@ -67,8 +58,8 @@ export function InventoryModule() {
         qty: 0,
         location: "B-05",
         bbd: "2024-10-30",
-        status: "QC Hold",
-        holds: ["QC_HOLD"],
+        status: InventoryItemStatus.QCHold,
+        holds: [InventoryItemStatus.QCHold],
       },
       // Add more mock data for pagination demo
       ...Array.from({ length: 47 }, (_, i) => ({
@@ -83,10 +74,10 @@ export function InventoryModule() {
           2,
           "0"
         )}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, "0")}`,
-        status: ["Available", "Low Stock", "Expiring Soon"][
+        status: [ InventoryItemStatus.Available, InventoryItemStatus.OutOfStock, InventoryItemStatus.Blocked][
           Math.floor(Math.random() * 3)
         ],
-        holds: Math.random() > 0.8 ? ["QC_HOLD"] : [],
+        holds: Math.random() > 0.8 ? [InventoryItemStatus.QCHold] : [],
       })),
     ],
     []
@@ -104,7 +95,7 @@ export function InventoryModule() {
     },
     {
         title: "Low Stock Items",
-        value: allInventoryItems.filter(item => item.status === "Low Stock").length,
+        value: allInventoryItems.filter(item => item.status === InventoryItemStatus.OutOfStock).length,
         change: '',
         changeDescription: "Below minimum threshold",
         icon: ChevronsDown,
@@ -122,7 +113,7 @@ export function InventoryModule() {
     },
     {
         title: "Expiring Soon",
-        value: allInventoryItems.filter(item => item.status === "Expiring Soon").length,
+        value: allInventoryItems.filter(item => item.status === InventoryItemStatus.Blocked).length,
         change: '',
         changeDescription: "Within 30 days",
         icon: AlertTriangle,
@@ -162,34 +153,49 @@ export function InventoryModule() {
     }
   ];
 
-  // Define filter functions
-  const filterFunctions = {
-    status: (item: any, filterValue: string) => {
-      switch (filterValue) {
-        case 'available':
-          return item.status === InventoryItemStatus.Available;
-        case 'low':
-          return item.status === InventoryItemStatus.OutOfStock;
-        case 'hold':
-          return item.status === InventoryItemStatus.QCHold;
-        case 'expiring':
-          return item.bbd && 
-                 new Date(item.bbd) < 
-                 new Date(new Date().setDate(new Date().getDate() + 30));
-        default:
-          return true;
-      }
-    },
-    location: (item: any, filterValue: string) => {
-      return item.location.toLowerCase().includes(filterValue.toLowerCase());
-    },
-    bbd: (item: any, filterValue: string) => {
-      return item.bbd && new Date(item.bbd) <= new Date(filterValue);
-    }
+  // Define inventory item type
+  type InventoryItem = {
+    sku: string;
+    description: string;
+    lotNumber: string;
+    qty: number;
+    location: string;
+    bbd: string;
+    status: string;
+    holds: string[];
   };
 
+  // Define filter functionsInventoryItem
+const filterFunctions: Record<string, (item: InventoryItem, filterValue: unknown) => boolean> = {
+  status: (item, filterValue): boolean => {
+    if (typeof filterValue !== "string") return true;
+    switch (filterValue) {
+      case "available":
+        return item.status === InventoryItemStatus.Available;
+      case "low":
+        return item.status === InventoryItemStatus.OutOfStock;
+      case "hold":
+        return item.status === InventoryItemStatus.QCHold;
+      case "expiring":
+        return !!item.bbd && new Date(item.bbd) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      default:
+        return true;
+    }
+  },
+
+  location: (item, filterValue): boolean => {
+    if (typeof filterValue !== "string") return true;
+    return item.location.toLowerCase().includes(filterValue.toLowerCase());
+  },
+
+  bbd: (item, filterValue): boolean => {
+    // if (typeof filterValue !== "string") return true;
+    return !!item.bbd && new Date(item.bbd) <= new Date(filterValue as string);
+  },
+};
+
   // Use the custom hook for filtering
-  const filteredItems = useFilteredData(
+  const filteredItems = useFilteredData<InventoryItem, unknown>(
     allInventoryItems,
     searchTerm,
     filters,
@@ -208,12 +214,14 @@ export function InventoryModule() {
 
   const paginatedItems = getPageItems(filteredItems);
 
-  const handleFilterChange = (key: string, value: any) => {
-    setFilter({ ...filters, [key]: value });
+  const handleFilterChange = (key: string, value: unknown) => {
+    // Create a new filter object with the updated value
+    const newFilters = { ...filters, [key]: value };
+    setFilter(newFilters);
     goToPage(1); // Reset to first page when filtering
   };
 
-  const handleAction = (action: string, item: any) => {
+  const handleAction = (action: string, item: InventoryItem) => {
     addNotification({
       type: "success",
       message: `${action} action performed on ${item.sku}`,
@@ -240,6 +248,82 @@ export function InventoryModule() {
     }
   };
 
+
+  // Define table columns for mobile-friendly table
+const tableColumns: TableColumn<InventoryItem>[] = [
+    {
+      key: "sku",
+      label: "SKU",
+      priority: "high",
+    },
+    {
+      key: "description",
+      label: "Description",
+      priority: "high",
+    },
+    {
+      key: "qty",
+      label: "Quantity",
+      priority: "high",
+      render: (value) => {
+        const qty = typeof value === "number" ? value : Number(value);
+        return <span className={qty <= 25 ? "text-orange-600 font-medium" : ""}>{qty}</span>;
+      },
+    },
+    {
+      key: "status",
+      label: "Status",
+      priority: "high",
+      render: (value, row: InventoryItem) => getStatusBadge(String(value), row.holds),
+    },
+    {
+      key: "lotNumber",
+      label: "LOT",
+      priority: "medium",
+    },
+    {
+      key: "location",
+      label: "Location",
+      priority: "medium",
+    },
+    {
+      key: "bbd",
+      label: "BBD",
+      priority: "medium",
+    },
+  ];
+
+    const renderExpandedContent = (item: InventoryItem) => (
+    <div className="pt-2 border-t space-y-1">
+      <div className="flex justify-between">
+        <span className="text-gray-600">LOT:</span>
+        <span className="font-medium">{item.lotNumber}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-gray-600">Location:</span>
+        <span className="font-medium">{item.location}</span>
+      </div>
+      <div className="flex justify-between">
+        <span className="text-gray-600">BBD:</span>
+        <span className="font-medium">{item.bbd}</span>
+      </div>
+      {item.holds.length > 0 && (
+        <div className="flex justify-between">
+          <span className="text-gray-600">Holds:</span>
+          <div className="flex gap-1">
+            {item.holds.map((hold: string, index: number) => (
+              <Badge key={index} variant="destructive" className="text-xs">
+                {hold}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -256,7 +340,16 @@ export function InventoryModule() {
             variant="outline"
             className="w-full sm:w-auto"
             onClick={() =>
-              handleAction("Stock Adjustment", { sku: "Multiple Items" })
+              handleAction("Stock Adjustment", {
+                sku: "Multiple Items",
+                description: "",
+                lotNumber: "",
+                qty: 0,
+                location: "",
+                bbd: "",
+                status: "",
+                holds: [],
+              })
             }
           >
             <Edit className="h-4 w-4 mr-2" />
@@ -264,7 +357,18 @@ export function InventoryModule() {
           </Button>
           <Button
             className="w-full sm:w-auto"
-            onClick={() => handleAction("Alert Creation", { sku: "System" })}
+            onClick={() =>
+              handleAction("Alert Creation", {
+                sku: "System",
+                description: "",
+                lotNumber: "",
+                qty: 0,
+                location: "",
+                bbd: "",
+                status: "",
+                holds: [],
+              })
+            }
           >
             <AlertTriangle className="h-4 w-4 mr-2" />
             Create Alert
@@ -300,82 +404,18 @@ export function InventoryModule() {
       />
 
       {/* Inventory Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Current Inventory</CardTitle>
-          <CardDescription>
-            Real-time inventory levels and status - Showing{" "}
-            {paginatedItems.length} of {filteredItems.length} items
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[100px]">SKU</TableHead>
-                  <TableHead className="min-w-[150px]">Description</TableHead>
-                  <TableHead className="min-w-[100px]">LOT</TableHead>
-                  <TableHead className="min-w-[80px]">Quantity</TableHead>
-                  <TableHead className="min-w-[80px]">Location</TableHead>
-                  <TableHead className="min-w-[100px]">BBD</TableHead>
-                  <TableHead className="min-w-[100px]">Status</TableHead>
-                  <TableHead className="min-w-[120px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedItems.map((item) => (
-                  <TableRow key={`${item.sku}-${item.lotNumber}`}>
-                    <TableCell className="font-medium">{item.sku}</TableCell>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell>{item.lotNumber}</TableCell>
-                    <TableCell>
-                      <span
-                        className={
-                          item.qty <= 25 ? "text-orange-600 font-medium" : ""
-                        }
-                      >
-                        {item.qty}
-                      </span>
-                    </TableCell>
-                    <TableCell>{item.location}</TableCell>
-                    <TableCell>{item.bbd}</TableCell>
-                    <TableCell>
-                      {getStatusBadge(item.status, item.holds)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAction("View", item)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAction("Edit", item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        {item.holds.length > 0 && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAction("Manage Hold", item)}
-                          >
-                            <Lock className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+            {/* Mobile-Friendly Inventory Table */}
+      <div>
+        <CustomTable
+          columns={tableColumns}
+          data={paginatedItems}
+          title={`Current Inventory - Showing ${paginatedItems.length} of ${filteredItems.length} items`}
+          onRowAction={handleAction}
+          expandable={true}
+          renderExpandedContent={renderExpandedContent}
+        />
 
+        <div className="mt-4">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -384,8 +424,8 @@ export function InventoryModule() {
             onPageChange={goToPage}
             onItemsPerPageChange={handleItemsPerPageChange}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

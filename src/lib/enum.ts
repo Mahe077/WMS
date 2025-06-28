@@ -38,6 +38,13 @@ export enum DockStatus {
   Active = 'active',
   Maintenance = 'maintenance',
   Blocked = 'blocked',
+  Scheduled = 'scheduled',
+  Arrived = 'arrived',
+  Loading = 'loading',
+  Completed = 'completed',
+  NoShow = 'no-show',
+  Delayed = 'delayed',
+  Cancelled = 'cancelled',
 }
 
 // Define the enum for different booking types
@@ -58,6 +65,12 @@ export enum DockBookingSlotType {
   Receiving = 'receiving',
   Dispatch = 'dispatch',
   Blocked = 'blocked',
+}
+
+export enum DockBookingPriority {
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
 }
 
 // Define vehicle types
@@ -90,3 +103,11 @@ export enum InventoryItemStatus {
     Blocked = 'blocked',
     QCHold = 'qc_hold',
 }
+
+//Define the enum for temperature control types
+export enum TemperatureControl {
+    Ambient = 'ambient',
+    Chilled = 'chilled',
+    Frozen = 'frozen',
+}
+

@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,9 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, ChevronDownIcon } from "lucide-react";
 import { FilterBarProps, FilterConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Calendar } from "./calendar";
+import React from "react";
 
 export function FilterBar({
   searchTerm,
@@ -28,6 +31,7 @@ export function FilterBar({
   const hasActiveFilters = Object.values(filters).some(
     (value) => value && value !== "all" && value !== ""
   );
+  const [open, setOpen] = React.useState(false)
 
   const renderFilter = (config: FilterConfig) => {
     switch (config.type) {
@@ -35,7 +39,7 @@ export function FilterBar({
         return (
           <Select
             key={config.key}
-            value={filters[config.key] || "all"}
+            value={typeof filters[config.key] === "string" ? (filters[config.key] as string) : "all"}
             onValueChange={(value) => onFilterChange(config.key, value)}
           >
             <SelectTrigger className={cn("w-full sm:w-48", config.width)}>
@@ -62,7 +66,7 @@ export function FilterBar({
           <Input
             key={config.key}
             placeholder={config.placeholder || config.label}
-            value={filters[config.key] || ""}
+            value={typeof filters[config.key] === "string" ? (filters[config.key] as string) : ""}
             onChange={(e) => onFilterChange(config.key, e.target.value)}
             className={cn("w-full sm:w-48", config.width)}
           />
@@ -70,14 +74,40 @@ export function FilterBar({
 
       case 'date':
         return (
-          <Input
-            key={config.key}
-            type="date"
-            placeholder={config.placeholder || config.label}
-            value={filters[config.key] || ""}
-            onChange={(e) => onFilterChange(config.key, e.target.value)}
-            className={cn("w-full sm:w-48", config.width)}
-          />
+          // <Input
+          //   key={config.key}
+          //   type="date"
+          //   placeholder={config.placeholder || config.label}
+          //   value={filters[config.key] || ""}
+          //   onChange={(e) => onFilterChange(config.key, e.target.value)}
+          //   className={cn("w-full sm:w-48", config.width)}
+          // />
+          <Popover open={open} onOpenChange={setOpen} key={config.key}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className="w-48 justify-between font-normal"
+              >
+                {filters[config.key] ? new Date(filters[config.key] as string).toLocaleDateString() : config.placeholder || config.label}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={
+                  filters[config.key]
+                    ? new Date(filters[config.key] as string)
+                    : undefined
+                }
+                captionLayout="dropdown"
+                onSelect={(date) => {
+                  onFilterChange(config.key, date)
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         );
 
       default:
@@ -121,7 +151,7 @@ export function FilterBar({
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
             {filterConfigs.map(renderFilter)}
-            
+
             {showClearButton && (
               <Button
                 variant="outline"
@@ -129,13 +159,11 @@ export function FilterBar({
                 onClick={onClearFilters}
                 disabled={!hasActiveFilters && !searchTerm}
               >
+                <div className="relative">
                 <Filter className="h-4 w-4 mr-2" />
+                {(hasActiveFilters || searchTerm) && <span className="absolute -top-1 h-2.5 w-2.5 rounded-full bg-red-500" />}
+                </div>
                 Clear Filters
-                {(hasActiveFilters || searchTerm) && (
-                  <span className="ml-1 text-xs bg-destructive text-destructive-foreground rounded-full px-1.5 py-0.5">
-                    !
-                  </span>
-                )}
               </Button>
             )}
           </div>

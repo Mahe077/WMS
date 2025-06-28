@@ -51,6 +51,7 @@ import { LogoutConfirmDialog } from "@/components/common/logout-confirm-dialog"
 import { StatCard } from "@/components/ui/stat-card"
 
 import { InventoryModule } from "@/components/modules/inventory-module"
+import { DockSchedulingModule } from "@/components/modules/dock-scheduling-module"
 
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
@@ -153,12 +154,12 @@ function WMSDashboardContent() {
       //       <BaySlotBooking />
       //     </ProtectedComponent>
       //   )
-      // case "dock-scheduling":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:dispatch">
-      //       <DockSchedulingModule />
-      //     </ProtectedComponent>
-      //   )
+      case "dock-scheduling":
+        return (
+          <ProtectedComponent requiredPermission="view:dispatch">
+            <DockSchedulingModule />
+          </ProtectedComponent>
+        )
       // case "3d-view":
       //   return (
       //     <ProtectedComponent requiredPermission="view:inventory">

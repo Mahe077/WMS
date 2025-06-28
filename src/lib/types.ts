@@ -4,7 +4,9 @@ import {
   DockStatus,
   AlertType,
   VehicleType,
-  InventoryItemStatus
+  InventoryItemStatus,
+  TemperatureControl,
+  DockBookingPriority
 } from "./enum"
 
 //null means all the given types are allowed
@@ -21,11 +23,11 @@ export type DockBookingSlot = {
 }
 
 export type DockBooking = {
-  id: string
-  bayId: string
+  id?: string
+  dockId: string
   startTime: string
   endTime: string
-  timeSlot: string
+  timeSlot?: string
   date: string
   activity?: DockBookingActivity | null
   customer?: string
@@ -34,8 +36,16 @@ export type DockBooking = {
   duration: number
   notes?: string
   carrier?: string
+  bookingRef: string
+  vehicleType?: VehicleType | null
+  temperatureControl?: TemperatureControl | null //if the docks can be different types, otherwise null
+  status: DockStatus //if the docks can be different types, otherwise null
+  eta?: string //estimated time of arrival
+  priority?: DockBookingPriority//priority of the
+  estimatedPallets?: number //estimated number of pallets for the booking
+  contactPerson?: string //contact person for the booking
+  phoneNumber?: string //phone number for the contact person
 }
-
 // This type is used for the form data when creating or updating a dock booking
 export type DockBookingFormData = {
   activity: string

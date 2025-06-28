@@ -353,7 +353,7 @@ function WMSDashboardContent() {
         {/* Overlay for mobile */}
         {state.sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
             onClick={() => dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })}
           />
         )}

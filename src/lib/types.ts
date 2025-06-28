@@ -197,3 +197,16 @@ export interface FilterBarProps {
   showClearButton?: boolean;
   className?: string;
 }
+
+// remove later
+export const VEHICLE_DURATIONS = {
+  van: 30,
+  truck: 60,
+  container: 90,
+  trailer: 120,
+}
+
+export const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
+  const hour = i + 6 // Start from 6 AM
+  return `${hour.toString().padStart(2, "0")}:00`
+})

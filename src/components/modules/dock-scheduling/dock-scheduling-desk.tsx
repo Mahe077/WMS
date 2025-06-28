@@ -76,7 +76,7 @@ export default function DockSchedulingDesk({
   getStatusBadge,
   selectedDate = new Date().toISOString().split("T")[0], // Default to today
   setSelectedDate = () => {}, // Function to set selected date
-  selectedDock = "all", // Default to "all"
+  selectedDock,
   setSelectedDock = () => {}, // Function to set selected dock
   showBookingForm = false, // Default to not showing booking form
   setShowBookingForm = () => {}, // Function to show/hide booking form
@@ -87,7 +87,7 @@ export default function DockSchedulingDesk({
   filterStatus = "all", // Default to "all" status
   setFilterStatus = () => {}, // Function to set status filter
   setSelectedTimeSlot = () => {}, // Function to set selected time slot
-  // selectedTimeSlot = null, // Currently selected time slot, if any
+  selectedTimeSlot, // Currently selected time slot, if any
   getPriorityColor,
   handleDeleteBooking, // Function to delete booking
   // onBookingEdit = () => {}, // Function to handle booking edit
@@ -411,6 +411,8 @@ export default function DockSchedulingDesk({
             setShowBookingForm(false);
             setEditingBooking(null);
           }}
+          dock={selectedDock ? docks.find(d => d.id === selectedDock) : undefined}
+          timeSlot={selectedTimeSlot || TIME_SLOTS[0]} // Default to first time slot if none selected
         />
       )}
     </div>

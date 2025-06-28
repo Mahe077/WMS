@@ -329,7 +329,7 @@ export function DockSchedulingModule() {
   // Desktop Layout
   return (
     <DockSchedulingDesk 
-          docks={docks}
+      docks={docks}
       bookings={filteredBookings}
       selectedDate={selectedDate}
       setSelectedDate={setSelectedDate}

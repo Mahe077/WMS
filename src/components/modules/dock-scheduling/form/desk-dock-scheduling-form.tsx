@@ -1,16 +1,32 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { CheckCircle } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
-import { DockBookingPriority, DockStatus, TemperatureControl, VehicleType } from "@/lib/enum"
-import { Dock, DockBooking, TIME_SLOTS, VEHICLE_DURATIONS } from "@/lib/types"
-import { Controller, useForm } from "react-hook-form"
+import React, { useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { CheckCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DockBookingPriority,
+  DockStatus,
+  TemperatureControl,
+  VehicleType,
+} from "@/lib/enum";
+import { Dock, DockBooking, TIME_SLOTS, VEHICLE_DURATIONS } from "@/lib/types";
 // Desktop booking form modal
 export function DesktopBookingFormModal({
   dock,
@@ -21,13 +37,13 @@ export function DesktopBookingFormModal({
   onSubmit,
   onCancel,
 }: {
-  dock?: Dock
-  timeSlot?: string | null
-  selectedDate: string
-  existingBooking?: DockBooking | null
-  docks: Dock[]
-  onSubmit: (data: DockBooking) => void
-  onCancel: () => void
+  dock?: Dock;
+  timeSlot?: string | null;
+  selectedDate: string;
+  existingBooking?: DockBooking | null;
+  docks: Dock[];
+  onSubmit: (data: DockBooking) => void;
+  onCancel: () => void;
 }) {
   const [formData, setFormData] = useState({
     dockId: existingBooking?.dockId || dock?.id || docks[0]?.id,
@@ -36,7 +52,8 @@ export function DesktopBookingFormModal({
     duration: existingBooking?.duration || VEHICLE_DURATIONS.truck,
     carrier: existingBooking?.carrier || "",
     bookingRef: existingBooking?.bookingRef || "",
-    temperatureControl: existingBooking?.temperatureControl || TemperatureControl.Ambient,
+    temperatureControl:
+      existingBooking?.temperatureControl || TemperatureControl.Ambient,
     status: existingBooking?.status || DockStatus.Scheduled,
     priority: existingBooking?.priority || DockBookingPriority.Medium,
     contactPerson: existingBooking?.contactPerson || "",
@@ -44,74 +61,80 @@ export function DesktopBookingFormModal({
     estimatedPallets: existingBooking?.estimatedPallets || "",
     eta: existingBooking?.eta || "",
     notes: existingBooking?.notes || "",
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!formData.dockId) {
-      return
+      return;
     }
     // Calculate endTime based on startTime and duration
-    const [startHour, startMinute] = formData.startTime.split(":").map(Number)
-    const startMinutes = startHour * 60 + startMinute
-    const endMinutes = startMinutes + Number(formData.duration)
-    const endTime = `${Math.floor(endMinutes / 60).toString().padStart(2, "0")}:${(endMinutes % 60).toString().padStart(2, "0")}`
-
+    const [startHour, startMinute] = formData.startTime.split(":").map(Number);
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = startMinutes + Number(formData.duration);
+    const endTime = `${Math.floor(endMinutes / 60)
+      .toString()
+      .padStart(2, "0")}:${(endMinutes % 60).toString().padStart(2, "0")}`;
 
     onSubmit({
       ...formData,
       duration: Number(formData.duration),
-      estimatedPallets: formData.estimatedPallets ? Number(formData.estimatedPallets) : undefined,
+      estimatedPallets: formData.estimatedPallets
+        ? Number(formData.estimatedPallets)
+        : undefined,
       endTime,
       date: selectedDate,
-    })
-  }
+    });
+  };
 
-  const selectedDock = docks.find((d) => d.id === formData.dockId)
-
-  const { control, formState: { errors } } = useForm()
-
+  const selectedDock = docks.find((d) => d.id === formData.dockId);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 space-y-0">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader>
-          <CardTitle>{existingBooking ? "Edit Booking" : "New Dock Booking"}</CardTitle>
-          <CardDescription>{selectedDock && `${selectedDock.name} • ${formData.startTime}`}</CardDescription>
+          <CardTitle>
+            {existingBooking ? "Edit Booking" : "New Dock Booking"}
+          </CardTitle>
+          <CardDescription>
+            {selectedDock && `${selectedDock.name} • ${formData.startTime}`}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                name="status"
-                control={control}
-                rules={{ required: "Status is required" }}
-                render={() => (
-                  <div className="space-y-2">
-                    <Label htmlFor="dockId">Dock</Label>
-                    <Select value={formData.dockId} onValueChange={(value) => setFormData({ ...formData, dockId: value })} required name="dockId">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select dock" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {docks
-                          .filter((d) => d.status === "active")
-                          .map((dock) => (
-                            <SelectItem key={dock.id} value={dock.id}>
-                              {dock.name} ({dock.type})
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}>
-              </Controller>
+              <div className="space-y-2">
+                <Label htmlFor="dockId">Dock</Label>
+                <Select
+                  value={formData.dockId}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, dockId: value })
+                  }
+                  required
+                  name="dockId"
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select dock" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {docks
+                      .filter((d) => d.status === "active")
+                      .map((dock) => (
+                        <SelectItem key={dock.id} value={dock.id}>
+                          {dock.name} ({dock.type})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="startTime">Start Time</Label>
                 <Select
                   value={formData.startTime}
-                  onValueChange={(value) => setFormData({ ...formData, startTime: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, startTime: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -130,7 +153,12 @@ export function DesktopBookingFormModal({
                 <Label htmlFor="vehicleType">Vehicle Type</Label>
                 <Select
                   value={formData.vehicleType}
-                  onValueChange={(value) => setFormData({ ...formData, vehicleType: value as VehicleType })}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      vehicleType: value as VehicleType,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -138,7 +166,9 @@ export function DesktopBookingFormModal({
                   <SelectContent>
                     <SelectItem value="van">Van (30 min)</SelectItem>
                     <SelectItem value="truck">Truck (60 min)</SelectItem>
-                    <SelectItem value="container">Container (90 min)</SelectItem>
+                    <SelectItem value="container">
+                      Container (90 min)
+                    </SelectItem>
                     <SelectItem value="trailer">Trailer (120 min)</SelectItem>
                   </SelectContent>
                 </Select>
@@ -153,7 +183,12 @@ export function DesktopBookingFormModal({
                   max="480"
                   step="15"
                   value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      duration: Number(e.target.value),
+                    })
+                  }
                 />
               </div>
 
@@ -162,7 +197,9 @@ export function DesktopBookingFormModal({
                 <Input
                   id="carrier"
                   value={formData.carrier}
-                  onChange={(e) => setFormData({ ...formData, carrier: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, carrier: e.target.value })
+                  }
                   placeholder="DHL Express"
                   required
                 />
@@ -173,7 +210,9 @@ export function DesktopBookingFormModal({
                 <Input
                   id="bookingRef"
                   value={formData.bookingRef}
-                  onChange={(e) => setFormData({ ...formData, bookingRef: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bookingRef: e.target.value })
+                  }
                   placeholder="DHL-2024-001"
                   required
                 />
@@ -183,7 +222,12 @@ export function DesktopBookingFormModal({
                 <Label htmlFor="temperatureControl">Temperature Control</Label>
                 <Select
                   value={formData.temperatureControl}
-                  onValueChange={(value) => setFormData({ ...formData, temperatureControl: value as TemperatureControl })}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      temperatureControl: value as TemperatureControl,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -201,7 +245,12 @@ export function DesktopBookingFormModal({
                 <Label htmlFor="priority">Priority</Label>
                 <Select
                   value={formData.priority}
-                  onValueChange={(value) => setFormData({ ...formData, priority: value as DockBookingPriority })}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      priority: value as DockBookingPriority,
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -219,7 +268,9 @@ export function DesktopBookingFormModal({
                 <Input
                   id="contactPerson"
                   value={formData.contactPerson}
-                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactPerson: e.target.value })
+                  }
                   placeholder="John Smith"
                 />
               </div>
@@ -229,7 +280,9 @@ export function DesktopBookingFormModal({
                 <Input
                   id="phoneNumber"
                   value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
                   placeholder="+1-555-0123"
                 />
               </div>
@@ -241,7 +294,12 @@ export function DesktopBookingFormModal({
                   type="number"
                   min="1"
                   value={formData.estimatedPallets}
-                  onChange={(e) => setFormData({ ...formData, estimatedPallets: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      estimatedPallets: e.target.value,
+                    })
+                  }
                   placeholder="15"
                 />
               </div>
@@ -251,7 +309,9 @@ export function DesktopBookingFormModal({
                 <Input
                   id="eta"
                   value={formData.eta}
-                  onChange={(e) => setFormData({ ...formData, eta: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, eta: e.target.value })
+                  }
                   placeholder="09:15"
                 />
               </div>
@@ -262,7 +322,9 @@ export function DesktopBookingFormModal({
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 placeholder="Additional notes or special requirements..."
                 rows={3}
               />
@@ -283,19 +345,19 @@ export function DesktopBookingFormModal({
                   </div>
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3 text-green-600" />
-                    <span>Temperature: {(selectedDock?.temperatureZones ?? []).join(", ")}</span>
+                    <span>
+                      Temperature:{" "}
+                      {(selectedDock?.temperatureZones ?? []).join(", ")}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3 text-green-600" />
-                    <span>Equipment: {selectedDock?.equipment?.length ?? 0} items</span>
+                    <span>
+                      Equipment: {selectedDock?.equipment?.length ?? 0} items
+                    </span>
                   </div>
                 </div>
               </div>
-            )}
-
-
-            {errors.status && (
-              <p className="text-sm text-red-500">{errors.root?.message}</p>
             )}
 
             <div className="flex gap-2 pt-4">
@@ -310,5 +372,5 @@ export function DesktopBookingFormModal({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

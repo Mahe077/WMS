@@ -1,3 +1,20 @@
+This project is a Warehouse Management System (WMS) frontend built with Next.js. It provides a modern, modular interface for managing inventory, dock scheduling, and order fulfillment operations. The application is structured for scalability and maintainability, using React components, custom hooks, and context providers.
+
+### Main Features
+- **Inventory Management:** Track and manage inventory items, with sample data and UI components for listing and editing inventory.
+- **Dock Scheduling:** Schedule and manage dock operations, with dedicated modules for both desktop and mobile views.
+- **Order Fulfillment:** View and manage active orders and pick lists, supporting efficient order processing.
+- **Authentication:** Context-based authentication and protected routes to secure sensitive operations.
+- **Reusable UI Components:** Includes a library of UI elements (tables, dialogs, forms, notifications, etc.) for consistent design and rapid development.
+- **State Persistence:** Utilities for persisting state across sessions.
+
+The codebase is organized under `src/` with clear separation of concerns:
+- `components/` for UI and feature modules
+- `contexts/` for global state management
+- `hooks/` for custom React hooks
+- `lib/` for shared utilities and types
+- `app/` for Next.js routing and API endpoints
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

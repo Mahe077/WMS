@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -10,7 +9,6 @@ import {
   Truck,
   BarChart3,
   Users,
-  AlertTriangle,
   Clock,
   Warehouse,
   FileText,
@@ -27,7 +25,6 @@ import { LoadingDemo } from "@/components/ui/loading-demo"
 import { ProtectedComponent } from "@/components/common/protected-component"
 import { ProtectedRoute } from "@/components/common/protected-route"
 import { NotificationToast } from "@/components/common/notification-toast"
-import { Stat, Alert } from "@/lib/types"
 import { AlertType } from "@/lib/enum"
 import { useApp, useNotifications } from "@/contexts/app-context"
 import { useAuth } from "@/contexts/auth-context"
@@ -38,11 +35,11 @@ import { NotificationButton } from "@/components/common/notification-button"
 import { SettingsPanel } from "@/components/common/settings-panel"
 import { NotificationPanel } from "@/components/common/notification-panel"
 import { LogoutConfirmDialog } from "@/components/common/logout-confirm-dialog"
-import { StatCard } from "@/components/ui/stat-card"
 
 import { InventoryModule } from "@/components/modules/inventory-module"
 import { DockSchedulingModule } from "@/components/modules/dock-scheduling-module"
 import { OrderFulfillmentModule } from "@/components/modules/order-fulfillment-module"
+import { DashboardModule } from "@/components/modules/dashboard-module"
 
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
@@ -188,7 +185,7 @@ function WMSDashboardContent() {
           </div>
         )
       default:
-        return <DashboardContent stats={stats} alerts={alerts} />
+        return <DashboardModule stats={stats} alerts={alerts} />
     }
   }
 
@@ -360,123 +357,6 @@ function WMSDashboardContent() {
   )
 }
 
-function DashboardContent({ stats, alerts }: { stats: Stat[]; alerts: Alert[] }) {
-  const { addNotification } = useNotifications()
-  // const { can } = useAuth()
-
-  const handleQuickAction = (action: string) => {
-    addNotification({
-      type: "success",
-      message: `${action} initiated successfully`,
-    })
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground">Overview of warehouse operations</p>
-        </div>
-      </div>
-
-      {/* Stats Grid - Mobile 2x2, Desktop 1x4 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-        {stats.map((stat, index) => (
-          <StatCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            change={stat.change}
-            icon={stat.icon}
-            color={stat.color}
-          />
-        ))}
-      </div>
-
-      {/* Alerts and Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2 text-orange-500" />
-              System Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {alerts.map((alert, index) => (
-              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
-                <div
-                  className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                    alert.type === "error" ? "bg-red-500" : alert.type === "warning" ? "bg-orange-500" : "bg-blue-500"
-                  }`}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium break-words">{alert.message}</p>
-                  <p className="text-xs text-gray-500">{alert.time}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-blue-500" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ProtectedComponent requiredPermission="view:receiving">
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => handleQuickAction("New Receipt Processing")}
-              >
-                <Package className="h-4 w-4 mr-2" />
-                Process New Receipt
-              </Button>
-            </ProtectedComponent>
-
-            <ProtectedComponent requiredPermission="view:orders">
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => handleQuickAction("Pick List Creation")}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Create Pick List
-              </Button>
-            </ProtectedComponent>
-
-            <ProtectedComponent requiredPermission="view:dispatch">
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => handleQuickAction("Dispatch Scheduling")}
-              >
-                <Truck className="h-4 w-4 mr-2" />
-                Schedule Dispatch
-              </Button>
-            </ProtectedComponent>
-
-            <ProtectedComponent requiredPermission="view:reports">
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => handleQuickAction("Report Generation")}
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Generate Report
-              </Button>
-            </ProtectedComponent>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
 
 export default function WMSDashboard() {
   return (

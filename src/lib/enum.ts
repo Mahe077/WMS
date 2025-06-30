@@ -111,3 +111,26 @@ export enum TemperatureControl {
     Frozen = 'frozen',
 }
 
+export enum ActionStatus {
+    Pending = 'Pending',
+    InProgress = 'In progress',
+    Completed = 'Completed',
+    Failed = 'Failed',
+    Cancelled = 'Cancelled',
+}
+
+export enum PickListItemStages {
+    Partial = 'Partial',
+    Completed = 'Completed',
+    Pending = 'Pending',
+}
+
+export enum OrderStatus {
+    Pending = 'Pending',
+    Picking = 'Picking',
+    Packed = 'Packed',
+    Shipping = 'In progress',
+    Completed = 'Completed',
+    Cancelled = 'Cancelled',
+    OnHold = 'On hold',
+}

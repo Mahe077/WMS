@@ -18,6 +18,8 @@ const MODULE_ROUTES: Record<string, string> = {
   returns: "/?module=returns",
   reports: "/?module=reports",
   users: "/?module=users",
+  settings: "/?module=settings",
+  "loading-demo": "/?module=loading-demo", // For demo purposes
 }
 
 // URL to module mapping

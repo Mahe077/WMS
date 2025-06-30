@@ -6,7 +6,9 @@ import {
   VehicleType,
   InventoryItemStatus,
   TemperatureControl,
-  DockBookingPriority
+  DockBookingPriority,
+  PickListItemStages,
+  OrderStatus
 } from "./enum"
 
 //null means all the given types are allowed
@@ -210,3 +212,113 @@ export const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
   const hour = i + 6 // Start from 6 AM
   return `${hour.toString().padStart(2, "0")}:00`
 })
+
+
+// order fulfillment types
+export type Order = {
+  id: string
+  customerId?: string
+  orderNumber: string
+  orderDate: string
+  status: OrderStatus
+  priority: string
+  items: number
+  dueDate: string
+  carrier: string
+  trackingNumber?: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+  customFields?: Record<string, unknown>
+}
+
+export type OrderItem = {
+  id: string
+  orderId: string
+  productId: string
+  quantity: number
+  status: string
+  location?: string // storage location in the warehouse
+  lotNumber?: string // for traceability
+  serialNumber?: string // if applicable
+}
+
+export type OrderFormData = {
+  customer: string
+  orderNumber: string
+  orderDate: string
+  status: string
+  priority: string
+  items: OrderItem[]
+  dueDate: string
+  carrier: string
+  trackingNumber?: string
+  notes?: string
+}
+
+export type PickListItem = {
+  sku: string
+  description: string
+  lot: string
+  qtyOrdered: number
+  qtyPicked: number
+  location: string
+  status: PickListItemStages
+}
+export type PickList = {
+  id: string
+  orderId: string
+  items: PickListItem[]
+  totalItems: number
+  totalPicked: number
+  status: PickListItemStages
+  createdAt: string
+  updatedAt?: string
+  notes?: string
+}
+
+export type Customer = {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  locations : CustomerLocation[]
+  billingAddress?: {
+    street: string
+    city: string
+    state: string
+    zip: string
+    country: string
+  }
+  notes?: string
+  customFields?: Record<string, unknown>
+  orderHistory?: Order[] // optional, for customer order history
+  orderConfig?: {
+    defaultCarrier?: string
+    defaultPriority?: string
+    defaultPaymentTerms?: string
+    fulfillmentType?: string // e.g., "fifo", "fefo", "lifo"
+    defaultPackagingType?: string // e.g., "standard", "custom"
+    defaultWarehouse?: string // e.g., "main", "secondary"
+    defaultInventoryLocation?: string // e.g., "warehouse1", "warehouse2"
+    defaultInventoryStatus?: InventoryItemStatus // e.g., "available", "reserved", "damaged"
+    defaultShippingMethod?: string // e.g., "standard", "express"
+    defaultPackaging?: string // e.g., "box", "pallet"
+  }
+}
+
+export type CustomerLocation = {
+  id: string
+  customerId: string
+  address: {
+    street: string
+    city: string
+    state: string
+    zip: string
+    country: string
+  }
+  contactPerson?: string
+  phoneNumber?: string
+  email?: string
+  notes?: string
+}

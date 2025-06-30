@@ -293,7 +293,7 @@ const tableColumns: TableColumn<InventoryItem>[] = [
     },
   ];
 
-    const renderExpandedContent = (item: InventoryItem) => (
+  const renderExpandedContent = (item: InventoryItem) => (
     <div className="pt-2 border-t space-y-1">
       <div className="flex justify-between">
         <span className="text-gray-600">LOT:</span>

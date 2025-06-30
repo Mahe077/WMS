@@ -1,8 +1,7 @@
 import React from "react";
 import { render, act, waitFor } from "@testing-library/react";
-import { AuthProvider, AuthContext, AuthContextType } from "./auth-context";
+import { AuthProvider, AuthContext, AuthContextType, User } from "./auth-context";
 import { useContext } from "react";
-import { validateTokenApi } from "@/lib/api/auth";
 
 // Mocks
 const mockPush = jest.fn();
@@ -17,14 +16,14 @@ jest.mock("@/contexts/app-context", () => ({
 const mockValidateTokenApi = jest.fn();
 const mockLoginApi = jest.fn();
 jest.mock("@/lib/api/auth", () => ({
-  validateTokenApi: (...args: any[]) => mockValidateTokenApi(...args),
-  loginApi: (...args: any[]) => mockLoginApi(...args),
+  validateTokenApi: (...args: unknown[]) => mockValidateTokenApi(...args),
+  loginApi: (...args: unknown[]) => mockLoginApi(...args),
 }));
 
 jest.mock("@/lib/auth/permissions", () => ({
-  can: (user: any, permission: string) =>
+  can: (user: User, permission: string) =>
     user?.permissions?.includes(permission),
-  hasRole: (user: any, role: string | string[]) => {
+  hasRole: (user: User, role: string | string[]) => {
     if (!user) return false;
     if (Array.isArray(role)) return role.includes(user.role);
     return user.role === role;
@@ -164,7 +163,7 @@ describe("AuthProvider", () => {
       ok: true,
       json: async () => ({ user: { id: "1", name: "Test", email: "t@e.com", role: "admin", permissions: [] } }),
     })
-    const { getByText, findByText } = render(
+    const { getByText } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
@@ -326,9 +325,7 @@ describe("AuthProvider", () => {
     });
     let ctx: AuthContextType;
     function ActivityTest() {
-      ctx = useContext(
-        require("./auth-context").AuthContext
-      ) as AuthContextType;
+      ctx = useContext(AuthContext) as AuthContextType;
       return <button onClick={() => ctx.updateActivity()}>Update</button>;
     }
     const { getByText } = render(

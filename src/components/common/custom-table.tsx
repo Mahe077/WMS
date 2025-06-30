@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-
+import React from "react"
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronRight, Eye, Edit, MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -20,19 +19,32 @@ interface CustomTableProps<T> {
   columns: TableColumn<T>[]
   data: T[]
   title?: string
+  description?: string
   onRowAction?: (action: string, row: T) => void
   expandable?: boolean
   renderExpandedContent?: (row: T) => React.ReactNode
+  // New filter props
+  renderFilters?: () => React.ReactNode
+  renderCustomActions?: () => React.ReactNode
+  renderTableActions?: (row: T, index: number) => React.ReactNode
+  showDefaultActions?: boolean
+  className?: string
 }
 
 export function CustomTable<T>({
   columns,
   data,
   title,
+  description,
   onRowAction,
   expandable = false,
   renderExpandedContent,
-}:CustomTableProps<T>) {
+  renderFilters,
+  renderCustomActions,
+  renderTableActions,
+  showDefaultActions = true,
+  className = "",
+}: CustomTableProps<T>) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   const toggleRowExpansion = (rowId: string) => {
@@ -50,16 +62,33 @@ export function CustomTable<T>({
   const secondaryColumns = columns.filter((col) => col.priority === "medium")
 
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${className}`}>
       {/* Desktop Table */}
       <div className="hidden lg:block">
         <Card>
           {title && (
             <CardHeader>
               <CardTitle>{title}</CardTitle>
+              {description && <CardDescription>{description}</CardDescription>}
             </CardHeader>
           )}
           <CardContent>
+            {/* Filters and Custom Actions */}
+            {(renderFilters || renderCustomActions) && (
+              <div className="space-y-4 mb-6">
+                {renderFilters && (
+                  <div className="rounded-lg">
+                    {renderFilters()}
+                  </div>
+                )}
+                {renderCustomActions && (
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    {renderCustomActions()}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -69,7 +98,9 @@ export function CustomTable<T>({
                         {column.label}
                       </th>
                     ))}
-                    <th className="text-left p-2 font-medium">Actions</th>
+                    {(showDefaultActions || renderTableActions) && (
+                      <th className="text-left p-2 font-medium">Actions</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -80,16 +111,24 @@ export function CustomTable<T>({
                           {column.render ? column.render(row[column.key], row) : String(row[column.key])}
                         </td>
                       ))}
-                      <td className="p-2">
-                        <div className="flex gap-1">
-                          <Button variant="outline" size="sm" onClick={() => onRowAction?.("view", row)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => onRowAction?.("edit", row)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
+                      {(showDefaultActions || renderTableActions) && (
+                        <td className="p-2">
+                          <div className="flex gap-1">
+                            {renderTableActions ? (
+                              renderTableActions(row, index)
+                            ) : (
+                              <React.Fragment>
+                                <Button variant="outline" size="sm" onClick={() => onRowAction?.("view", row)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={() => onRowAction?.("edit", row)}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </React.Fragment>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -101,6 +140,16 @@ export function CustomTable<T>({
 
       {/* Mobile Cards */}
       <div className="lg:hidden space-y-3">
+        {/* Mobile Filters */}
+        {(renderFilters || renderCustomActions) && (
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              {renderFilters && renderFilters()}
+              {renderCustomActions && renderCustomActions()}
+            </CardContent>
+          </Card>
+        )}
+
         {data.map((row, index) => {
           const rowId = `row-${index}`
           const isExpanded = expandedRows.has(rowId)
@@ -128,23 +177,33 @@ export function CustomTable<T>({
                   </div>
 
                   {/* Actions Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onRowAction?.("view", row)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onRowAction?.("edit", row)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {(showDefaultActions || renderTableActions) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {renderTableActions ? (
+                          <div className="p-1">
+                            {renderTableActions(row, index)}
+                          </div>
+                        ) : (
+                          <React.Fragment>
+                            <DropdownMenuItem onClick={() => onRowAction?.("view", row)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onRowAction?.("edit", row)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                          </React.Fragment>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
 
                 {/* Secondary Information (when expanded or always visible) */}
@@ -172,15 +231,15 @@ export function CustomTable<T>({
                         onClick={() => toggleRowExpansion(rowId)}
                       >
                         {isExpanded ? (
-                          <>
+                          <React.Fragment>
                             <ChevronDown className="h-4 w-4 mr-1" />
                             Show Less
-                          </>
+                          </React.Fragment>
                         ) : (
-                          <>
+                          <React.Fragment>
                             <ChevronRight className="h-4 w-4 mr-1" />
                             Show More
-                          </>
+                          </React.Fragment>
                         )}
                       </Button>
                     )}

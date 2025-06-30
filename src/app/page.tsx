@@ -23,16 +23,6 @@ import {
   Package2,
   LogOut,
 } from "lucide-react"
-// import { ReceivingModule } from "@/components/receiving-module"
-// import { InventoryPalletView } from "@/components/inventory-pallet-view"
-// import { BaySlotBooking } from "@/components/bay-slot-booking"
-// import { DockSchedulingModule } from "@/components/dock-scheduling-module"
-// import { Warehouse3DView } from "@/components/warehouse-3d-view"
-// import { OrderFulfillmentModule } from "@/components/order-fulfillment-module"
-// import { DispatchModule } from "@/components/dispatch-module"
-// import { ReturnsModule } from "@/components/returns-module"
-// import { ReportsModule } from "@/components/reports-module"
-// import { UserManagementModule } from "@/components/user-management-module"
 import { LoadingDemo } from "@/components/ui/loading-demo"
 import { ProtectedComponent } from "@/components/common/protected-component"
 import { ProtectedRoute } from "@/components/common/protected-route"
@@ -52,6 +42,7 @@ import { StatCard } from "@/components/ui/stat-card"
 
 import { InventoryModule } from "@/components/modules/inventory-module"
 import { DockSchedulingModule } from "@/components/modules/dock-scheduling-module"
+import { OrderFulfillmentModule } from "@/components/modules/order-fulfillment-module"
 
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
@@ -148,12 +139,6 @@ function WMSDashboardContent() {
       //       <InventoryPalletView />
       //     </ProtectedComponent>
       //   )
-      // case "bay-booking":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:dispatch">
-      //       <BaySlotBooking />
-      //     </ProtectedComponent>
-      //   )
       case "dock-scheduling":
         return (
           <ProtectedComponent requiredPermission="view:dispatch">
@@ -166,12 +151,12 @@ function WMSDashboardContent() {
       //       <Warehouse3DView />
       //     </ProtectedComponent>
       //   )
-      // case "orders":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:orders">
-      //       <OrderFulfillmentModule />
-      //     </ProtectedComponent>
-      //   )
+      case "orders":
+        return (
+          <ProtectedComponent requiredPermission="view:orders">
+            <OrderFulfillmentModule />
+          </ProtectedComponent>
+        )
       // case "dispatch":
       //   return (
       //     <ProtectedComponent requiredPermission="view:dispatch">

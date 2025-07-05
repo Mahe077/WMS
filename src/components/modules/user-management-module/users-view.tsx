@@ -1,7 +1,7 @@
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/ui/stat-card";
-import { usePagination } from "@/contexts/app-context";
+import { useNotifications, usePagination } from "@/contexts/app-context";
 import { Stat, User } from "@/lib/types";
 import { Activity, UserRoundMinus, UserRoundPlus, Users } from "lucide-react";
 import React from "react";
@@ -46,6 +46,7 @@ interface UserViewProps {
 }
 
 export function UserView({ users }: UserViewProps) {
+    const { addNotification } = useNotifications();
   const {
     currentPage,
     itemsPerPage,
@@ -120,8 +121,26 @@ export function UserView({ users }: UserViewProps) {
         data={users}
         title={"System Users"}
         description="Manage user accounts and access permissions"
-        onRowAction={() => {}}
-        renderExpandedContent={() => <div>Expanded Content</div>}
+        onRowAction={(action, row) => {
+          if (action === "view") {
+            // Handle view action
+            console.log("View order", row);
+            // e.g., navigate to order details page
+          } else if (action === "pick") {
+            // Handle pick action
+            console.log("Pick order", row);
+            // e.g., trigger pick workflow
+          } else {
+            // Handle other actions
+            console.log("Other action", action, row);
+          }
+          addNotification({
+            type: "success",
+            message: `${action} action performed on ${row.name}`,
+            });
+        }}
+        // renderExpandedContent={() => <div>Expanded Content</div>}
+        expandable={false}
         currentPage={currentPage}
         totalPages={totalPages}
         itemsPerPage={itemsPerPage}

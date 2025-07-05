@@ -1,6 +1,6 @@
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
 import { StatCard } from "@/components/ui/stat-card";
-import { usePagination } from "@/contexts/app-context";
+import { useNotifications, usePagination } from "@/contexts/app-context";
 import { Order, Stat } from "@/lib/types";
 import { CircleCheckBig, FileText, RefreshCcw, Truck } from "lucide-react";
 import React from "react";
@@ -55,7 +55,7 @@ export function ActiveOrderView({
   getStatusBadge,
   getPriorityBadge,
 }: ActiveOrderViewProps) {
-
+  const { addNotification } = useNotifications();
   const tableColumns: TableColumn<Order>[] = [
     { key: "id", label: "Order ID", priority: "high" },
     { key: "customerId", label: "Customer", priority: "high" },
@@ -121,6 +121,10 @@ export function ActiveOrderView({
             // Handle other actions
             console.log("Other action", action, row);
           }
+          addNotification({
+      type: "success",
+      message: `${action} action performed on ${row.id}`,
+    });
         }}
         expandable={false}
         currentPage={currentPage}

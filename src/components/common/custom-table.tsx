@@ -373,9 +373,9 @@ export function CustomTable<T>({
         })}
 
         {/* Pagination for mobile */}
-        <Card>
+        {/* <Card> */}
           <CardContent className="p-4">{paginationComponent}</CardContent>
-        </Card>
+        {/* </Card> */}
       </div>
     </div>
   );

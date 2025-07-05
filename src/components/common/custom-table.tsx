@@ -1,34 +1,58 @@
-"use client"
+"use client";
 
-import React from "react"
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronRight, Eye, Edit, MoreVertical } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import React from "react";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  Edit,
+  MoreVertical,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Pagination } from "../ui/pagination";
 
 export interface TableColumn<T> {
-  key: keyof T
-  label: string
-  render?: (value: T[keyof T], row: T) => React.ReactNode
-  mobileHidden?: boolean
-  priority?: "high" | "medium" | "low"
+  key: keyof T;
+  label: string;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
+  mobileHidden?: boolean;
+  priority?: "high" | "medium" | "low";
 }
 
 interface CustomTableProps<T> {
-  columns: TableColumn<T>[]
-  data: T[]
-  title?: string
-  description?: string
-  onRowAction?: (action: string, row: T) => void
-  expandable?: boolean
-  renderExpandedContent?: (row: T) => React.ReactNode
-  // New filter props
-  renderFilters?: () => React.ReactNode
-  renderCustomActions?: () => React.ReactNode
-  renderTableActions?: (row: T, index: number) => React.ReactNode
-  showDefaultActions?: boolean
-  className?: string
+  columns: TableColumn<T>[];
+  data: T[];
+  title?: string;
+  description?: string;
+  onRowAction?: (action: string, row: T) => void;
+  expandable?: boolean;
+  renderExpandedContent?: (row: T) => React.ReactNode;
+  renderFilters?: () => React.ReactNode;
+  renderCustomActions?: () => React.ReactNode;
+  renderTableActions?: (row: T, index: number) => React.ReactNode;
+  showDefaultActions?: boolean;
+  className?: string;
+  // Pagination props - fixed
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  totalItemsCount: number; // Changed to number
+  goToPage: (page: number) => void;
+  handleItemsPerPageChange: (itemsPerPage: number) => void;
 }
 
 export function CustomTable<T>({
@@ -44,22 +68,43 @@ export function CustomTable<T>({
   renderTableActions,
   showDefaultActions = true,
   className = "",
+  // Pagination props - fixed
+  currentPage,
+  totalPages,
+  itemsPerPage,
+  totalItemsCount, // Now a number
+  goToPage,
+  handleItemsPerPageChange,
 }: CustomTableProps<T>) {
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const toggleRowExpansion = (rowId: string) => {
-    const newExpanded = new Set(expandedRows)
+    const newExpanded = new Set(expandedRows);
     if (newExpanded.has(rowId)) {
-      newExpanded.delete(rowId)
+      newExpanded.delete(rowId);
     } else {
-      newExpanded.add(rowId)
+      newExpanded.add(rowId);
     }
-    setExpandedRows(newExpanded)
-  }
+    setExpandedRows(newExpanded);
+  };
 
   // Get primary columns for mobile (high priority)
-  const primaryColumns = columns.filter((col) => col.priority === "high" || !col.priority)
-  const secondaryColumns = columns.filter((col) => col.priority === "medium")
+  const primaryColumns = columns.filter(
+    (col) => col.priority === "high" || !col.priority
+  );
+  const secondaryColumns = columns.filter((col) => col.priority === "medium");
+
+  // Create pagination component to avoid duplication
+  const paginationComponent = (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      itemsPerPage={itemsPerPage}
+      totalItems={totalItemsCount}
+      onPageChange={goToPage}
+      onItemsPerPageChange={handleItemsPerPageChange}
+    />
+  );
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -94,7 +139,10 @@ export function CustomTable<T>({
                 <thead>
                   <tr className="border-b">
                     {columns.map((column) => (
-                      <th key={String(column.key)} className="text-left p-2 font-medium">
+                      <th
+                        key={String(column.key)}
+                        className="text-left p-2 font-medium"
+                      >
                         {column.label}
                       </th>
                     ))}
@@ -108,7 +156,9 @@ export function CustomTable<T>({
                     <tr key={index} className="border-b hover:bg-gray-50">
                       {columns.map((column) => (
                         <td key={String(column.key)} className="p-2">
-                          {column.render ? column.render(row[column.key], row) : String(row[column.key])}
+                          {column.render
+                            ? column.render(row[column.key], row)
+                            : String(row[column.key])}
                         </td>
                       ))}
                       {(showDefaultActions || renderTableActions) && (
@@ -118,10 +168,18 @@ export function CustomTable<T>({
                               renderTableActions(row, index)
                             ) : (
                               <React.Fragment>
-                                <Button variant="outline" size="sm" onClick={() => onRowAction?.("view", row)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => onRowAction?.("view", row)}
+                                >
                                   <Eye className="h-4 w-4" />
                                 </Button>
-                                <Button variant="outline" size="sm" onClick={() => onRowAction?.("edit", row)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => onRowAction?.("edit", row)}
+                                >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                               </React.Fragment>
@@ -133,6 +191,11 @@ export function CustomTable<T>({
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Pagination for desktop */}
+            <div className="mt-6">
+              {paginationComponent}
             </div>
           </CardContent>
         </Card>
@@ -151,8 +214,8 @@ export function CustomTable<T>({
         )}
 
         {data.map((row, index) => {
-          const rowId = `row-${index}`
-          const isExpanded = expandedRows.has(rowId)
+          const rowId = `row-${index}`;
+          const isExpanded = expandedRows.has(rowId);
 
           return (
             <Card key={index} className="overflow-hidden py-0">
@@ -164,12 +227,16 @@ export function CustomTable<T>({
                       <div key={String(column.key)} className="mb-1">
                         {column.key === primaryColumns[0].key ? (
                           <div className="font-medium text-base truncate">
-                            {column.render ? column.render(row[column.key], row) : String(row[column.key])}
+                            {column.render
+                              ? column.render(row[column.key], row)
+                              : String(row[column.key])}
                           </div>
                         ) : (
                           <div className="text-sm text-gray-600">
                             <span className="font-medium">{column.label}:</span>{" "}
-                            {column.render ? column.render(row[column.key], row) : String(row[column.key])}
+                            {column.render
+                              ? column.render(row[column.key], row)
+                              : String(row[column.key])}
                           </div>
                         )}
                       </div>
@@ -191,11 +258,15 @@ export function CustomTable<T>({
                           </div>
                         ) : (
                           <React.Fragment>
-                            <DropdownMenuItem onClick={() => onRowAction?.("view", row)}>
+                            <DropdownMenuItem
+                              onClick={() => onRowAction?.("view", row)}
+                            >
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onRowAction?.("edit", row)}>
+                            <DropdownMenuItem
+                              onClick={() => onRowAction?.("edit", row)}
+                            >
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
@@ -212,14 +283,23 @@ export function CustomTable<T>({
                     {(isExpanded || !expandable) && (
                       <div className="space-y-1 text-sm">
                         {secondaryColumns.map((column) => (
-                          <div key={String(column.key)} className="flex justify-between">
-                            <span className="text-gray-600">{column.label}:</span>
+                          <div
+                            key={String(column.key)}
+                            className="flex justify-between"
+                          >
+                            <span className="text-gray-600">
+                              {column.label}:
+                            </span>
                             <span className="font-medium">
-                              {column.render ? column.render(row[column.key], row) : String(row[column.key])}
+                              {column.render
+                                ? column.render(row[column.key], row)
+                                : String(row[column.key])}
                             </span>
                           </div>
                         ))}
-                        {expandable && renderExpandedContent && renderExpandedContent(row)}
+                        {expandable &&
+                          renderExpandedContent &&
+                          renderExpandedContent(row)}
                       </div>
                     )}
 
@@ -247,9 +327,16 @@ export function CustomTable<T>({
                 )}
               </CardContent>
             </Card>
-          )
+          );
         })}
+
+        {/* Pagination for mobile */}
+        <Card>
+          <CardContent className="p-4">
+            {paginationComponent}
+          </CardContent>
+        </Card>
       </div>
     </div>
-  )
+  );
 }

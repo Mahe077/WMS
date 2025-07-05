@@ -1,5 +1,6 @@
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
 import { StatCard } from "@/components/ui/stat-card";
+import { usePagination } from "@/contexts/app-context";
 import { Order, Stat } from "@/lib/types";
 import { CircleCheckBig, FileText, RefreshCcw, Truck } from "lucide-react";
 import React from "react";
@@ -65,6 +66,21 @@ export function ActiveOrderView({
     { key: "carrier", label: "Carrier", priority: "medium" },
   ];
 
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    goToPage,
+    getPageItems,
+    setPagination,
+  } = usePagination("orders-active", orders.length, 10);
+
+  const paginatedOrders = getPageItems(orders);
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });
+  };
+
   return (
     <React.Fragment>
       {/* Show selected warehouse */}
@@ -89,7 +105,7 @@ export function ActiveOrderView({
       {/* Orders Table */}
       <CustomTable
         columns={tableColumns}
-        data={orders}
+        data={paginatedOrders}
         title={"Active Orders"}
         description={"Orders currently in the fulfillment process"}
         onRowAction={(action, row) => {
@@ -107,6 +123,12 @@ export function ActiveOrderView({
           }
         }}
         expandable={false}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        totalItemsCount={paginatedOrders.length}
+        handleItemsPerPageChange={handleItemsPerPageChange}
+        goToPage={goToPage}
       />
     </React.Fragment>
   );

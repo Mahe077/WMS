@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Lock, Edit, Box, ChevronsDown } from "lucide-react";
-import { Pagination } from "@/components/ui/pagination";
 import {
   usePagination,
   useFilters,
@@ -406,25 +405,20 @@ const tableColumns: TableColumn<InventoryItem>[] = [
       {/* Inventory Table */}
             {/* Mobile-Friendly Inventory Table */}
       <div>
-        <CustomTable
+        <CustomTable<InventoryItem>
           columns={tableColumns}
           data={paginatedItems}
           title={`Current Inventory - Showing ${paginatedItems.length} of ${filteredItems.length} items`}
           onRowAction={handleAction}
           expandable={true}
           renderExpandedContent={renderExpandedContent}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          totalItemsCount={filteredItems.length}
+          handleItemsPerPageChange={handleItemsPerPageChange}
+          goToPage={goToPage}
         />
-
-        <div className="mt-4">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredItems.length}
-            onPageChange={goToPage}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
-        </div>
       </div>
     </div>
   );

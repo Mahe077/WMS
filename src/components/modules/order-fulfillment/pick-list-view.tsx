@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PickListItemStages } from "@/lib/enum";
+import { usePagination } from "@/contexts/app-context";
 
 interface PickListViewProps {
   pickListData: PickListItem[];
@@ -47,7 +48,22 @@ export function PickListView({
       item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
-  });
+  })
+  
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    goToPage,
+    getPageItems,
+    setPagination,
+  } = usePagination("orders-pick-list", filteredPickList.length, 10);
+
+  const paginatedPickList = getPageItems(filteredPickList);
+
+    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });
+  };
 
   const pickListColumns: TableColumn<PickListItem>[] = [
     {
@@ -200,12 +216,18 @@ export function PickListView({
       title="Pick List - ORD-2024-001"
       description="Retail Chain A • Priority: High • Due: 2024-01-16 14:00"
       columns={pickListColumns}
-      data={filteredPickList}
+      data={paginatedPickList}
       renderFilters={renderPickListFilters}
       renderCustomActions={renderPickListActions}
       renderTableActions={renderPickListTableActions}
       showDefaultActions={false}
       onRowAction={(action, row) => console.log(action, row)}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      itemsPerPage={itemsPerPage}
+      totalItemsCount={paginatedPickList.length}
+      handleItemsPerPageChange={handleItemsPerPageChange}
+      goToPage={goToPage}
     />
   );
 }

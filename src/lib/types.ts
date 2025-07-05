@@ -203,14 +203,16 @@ export interface FilterBarProps {
 // remove later
 export const VEHICLE_DURATIONS = {
   van: 30,
-  truck: 60,
+  truck: 45,
   container: 90,
   trailer: 120,
 }
 
-export const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
-  const hour = i + 6 // Start from 6 AM
-  return `${hour.toString().padStart(2, "0")}:00`
+export const TIME_SLOTS = Array.from({ length: 32 }, (_, i) => {
+  const totalMinutes = i * 45
+  const hour = Math.floor(totalMinutes / 60)
+  const minute = totalMinutes % 60
+  return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
 })
 
 

@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { DockBooking, Dock, TIME_SLOTS } from "@/lib/types";
 import { DesktopBookingFormModal } from "./form/desk-dock-scheduling-form";
-import { DockBookingPriority, TemperatureControl } from "@/lib/enum";
+import { DockBookingPriority, DockType, TemperatureControl } from "@/lib/enum";
 
 interface DockSchedulingProps {
   docks: Dock[];
@@ -64,6 +64,8 @@ interface DockSchedulingProps {
   ) => void; // Function to handle booking move
   setDraggedBooking?: (booking: DockBooking | null) => void; // Function to set dragged booking
   draggedBooking?: DockBooking | null; // Currently dragged booking, if any
+  selectedDockType?: string; // Dock type filter, "all" or specific type
+  setSelectedDockType?: (dockType: string) => void; // Function to set selected dock type
 }
 
 export default function DockSchedulingDesk({
@@ -94,7 +96,11 @@ export default function DockSchedulingDesk({
   handleBookingMove, // Function to handle booking move
   setDraggedBooking = () => {}, // Function to set dragged booking
   draggedBooking = null, // Currently dragged booking, if any
+  selectedDockType, // Default to "all" dock types
+  setSelectedDockType = () => {},
 }: DockSchedulingProps) {
+  const filteredDocks = docks.filter(d => d.type === selectedDockType);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -199,6 +205,19 @@ export default function DockSchedulingDesk({
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Select value={selectedDockType} onValueChange={setSelectedDockType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Dock Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(DockType).map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
@@ -206,7 +225,7 @@ export default function DockSchedulingDesk({
 
       {/* Dock Utilization Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {docks.map((dock) => (
+        {filteredDocks.map((dock) => (
           <Card key={dock.id}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
@@ -257,7 +276,7 @@ export default function DockSchedulingDesk({
               {/* Header */}
               <div className="grid grid-cols-5 gap-2 mb-4">
                 <div className="font-medium text-center py-2">Time</div>
-                {docks.map((dock) => (
+                {filteredDocks.map((dock) => (
                   <div key={dock.id} className="font-medium text-center py-2">
                     <div className="flex flex-col items-center">
                       <span>{dock.name}</span>
@@ -284,7 +303,7 @@ export default function DockSchedulingDesk({
                     <div className="flex items-center justify-center font-medium text-sm bg-gray-50 rounded p-2 min-h-[60px]">
                       {timeSlot}
                     </div>
-                    {docks.map((dock) => {
+                    {filteredDocks.map((dock) => {
                       const booking = getBookingAtTime(dock.id, timeSlot);
                       const isFirstSlot =
                         booking && booking.startTime === timeSlot;

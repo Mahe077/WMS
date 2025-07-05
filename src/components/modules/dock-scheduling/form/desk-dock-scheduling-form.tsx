@@ -312,7 +312,7 @@ export function DesktopBookingFormModal({
                   onChange={(e) =>
                     setFormData({ ...formData, eta: e.target.value })
                   }
-                  placeholder="09:15"
+                  placeholder= "HH:MM (e.g., 14:30)"
                 />
               </div>
             </div>

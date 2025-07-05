@@ -22,12 +22,14 @@ export function DockSchedulingModule() {
   const [filterCarrier, setFilterCarrier] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
   const [draggedBooking, setDraggedBooking] = useState<DockBooking | null>(null)
+  const [selectedDockType, setSelectedDockType] = useState<string>(DockType.Rear)
 
   // Mock dock data
   const docks: Dock[] = [
     {
       id: "DOCK-01",
       name: "Dock 1",
+      type: DockType.Rear,
       temperatureZones: ["ambient", "chilled"],
       maxVehicleSize: VehicleType.Trailer,
       status: DockStatus.Active,
@@ -36,7 +38,7 @@ export function DockSchedulingModule() {
     {
       id: "DOCK-02",
       name: "Dock 2",
-      type: DockType.Receiving,
+      type: DockType.Rear,
       temperatureZones: ["frozen", "chilled"],
       maxVehicleSize: VehicleType.Container,
       status: DockStatus.Active,
@@ -45,18 +47,46 @@ export function DockSchedulingModule() {
     {
       id: "DOCK-03",
       name: "Dock 3",
-      type: DockType.Dispatch,
+      type: DockType.Rear,
       temperatureZones: ["ambient"],
       maxVehicleSize: VehicleType.Truck,
       status: DockStatus.Active,
       equipment: ["forklift", "dock-leveler"],
     },
     {
-      id: "DOCK-04",
-      name: "Dock 4",
+      id: "DOCK-05",
+      name: "Dock 5",
+      type: DockType.Rear,
       temperatureZones: ["ambient", "chilled", "frozen"],
       maxVehicleSize: VehicleType.Trailer,
       status:DockStatus.Maintenance,
+      equipment: ["forklift", "dock-leveler", "temperature-control", "overhead-door"],
+    },
+    {
+      id: "DOCK-06",
+      name: "Dock 6",
+      type: DockType.Side,
+      temperatureZones: ["ambient", "chilled", "frozen"],
+      maxVehicleSize: VehicleType.Trailer,
+      status:DockStatus.Maintenance,
+      equipment: ["forklift", "dock-leveler", "temperature-control", "overhead-door"],
+    },
+    {
+      id: "DOCK-07",
+      name: "Dock 7",
+      type: DockType.Side,
+      temperatureZones: ["ambient", "chilled", "frozen"],
+      maxVehicleSize: VehicleType.Trailer,
+      status:DockStatus.Active,
+      equipment: ["forklift", "dock-leveler", "temperature-control", "overhead-door"],
+    },
+    {
+      id: "DOCK-0",
+      name: "Dock 8",
+      type: DockType.Side,
+      temperatureZones: ["ambient", "chilled", "frozen"],
+      maxVehicleSize: VehicleType.Trailer,
+      status:DockStatus.Active,
       equipment: ["forklift", "dock-leveler", "temperature-control", "overhead-door"],
     },
   ]
@@ -359,6 +389,8 @@ export function DockSchedulingModule() {
       handleBookingMove={handleBookingMove}
       setDraggedBooking={setDraggedBooking}
       draggedBooking={draggedBooking}
+      selectedDockType={selectedDockType}
+      setSelectedDockType={setSelectedDockType}
     />
   )
 }

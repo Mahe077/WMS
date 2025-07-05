@@ -29,8 +29,8 @@ export enum DockBookingActivity {
 
 // Define the enum for different bay types
 export enum DockType {
-  Receiving = 'receiving',
-  Dispatch = 'dispatch',
+  Rear = 'Rear',
+  Side = 'Side',
 }
 
 // Define the enum for different bay statuses

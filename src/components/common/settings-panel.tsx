@@ -274,11 +274,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
               </div>
             </div>
 
-            {/* <Separator />*/}
+            <Separator />
 
             {/* Display Settings */}
-            {/*
-            <div className="space-y-4">
+            {/* <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Palette className="h-4 w-4 text-gray-600" />
                 <h3 className="text-sm font-medium text-gray-900">Display</h3>

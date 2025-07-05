@@ -16,7 +16,6 @@ import {
   Settings,
   Menu,
   X,
-  Layers,
   Package2,
   LogOut,
 } from "lucide-react"
@@ -39,6 +38,12 @@ import { InventoryModule } from "@/components/modules/inventory-module"
 import { DockSchedulingModule } from "@/components/modules/dock-scheduling-module"
 import { OrderFulfillmentModule } from "@/components/modules/order-fulfillment-module"
 import { DashboardModule } from "@/components/modules/dashboard-module"
+import ReceivingModule from "@/components/modules/receiving-module"
+import InventoryPalletView from "@/components/modules/inventory-pallet-view"
+import DispatchModule from "@/components/modules/dispatch-module"
+import ReturnsModule from "@/components/modules/returns-module"
+import ReportsModule from "@/components/modules/reports-module"
+import UserManagementModule from "@/components/modules/user-management-module"
 
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
@@ -96,13 +101,12 @@ function WMSDashboardContent() {
     { id: "inventory", label: "Inventory", icon: Warehouse, permission: "view:inventory" },
     { id: "pallet-view", label: "Pallet View", icon: Package2, permission: "view:inventory" },
     { id: "dock-scheduling", label: "Dock Scheduling", icon: Truck, permission: "view:dispatch" },
-    { id: "3d-view", label: "3D Warehouse", icon: Layers, permission: "view:inventory" },
     { id: "orders", label: "Orders", icon: FileText, permission: "view:orders" },
     { id: "dispatch", label: "Dispatch", icon: Truck, permission: "view:dispatch" },
     { id: "returns", label: "Returns", icon: RefreshCw, permission: "view:returns" },
     { id: "reports", label: "Reports", icon: BarChart3, permission: "view:reports" },
     { id: "users", label: "Users", icon: Users, permission: "view:users", role: ["admin", "manager"] },
-    { id: "settings", label: "Settings", icon: Settings, permission: "view:settings", role: ["admin", "manager"] },
+    // { id: "settings", label: "Settings", icon: Settings, permission: "view:settings", role: ["admin", "manager"] },
     { id: "loading-demo", label: "Loading Demo", icon: Clock, permission: null }, // For demo purposes
   ]
 
@@ -116,66 +120,60 @@ function WMSDashboardContent() {
 
   const renderActiveModule = () => {
     switch (state.activeModule) {
-      // case "receiving":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:receiving">
-      //       <ReceivingModule />
-      //     </ProtectedComponent>
-      //   )
+      case "receiving":
+        return (
+          <ProtectedComponent requiredPermission="view:receiving">
+            <ReceivingModule />
+          </ProtectedComponent>
+        )
       case "inventory":
         return (
           <ProtectedComponent requiredPermission="view:inventory">
             <InventoryModule />
           </ProtectedComponent>
         )
-      // case "pallet-view":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:inventory">
-      //       <InventoryPalletView />
-      //     </ProtectedComponent>
-      //   )
+      case "pallet-view":
+        return (
+          <ProtectedComponent requiredPermission="view:inventory">
+            <InventoryPalletView />
+          </ProtectedComponent>
+        )
       case "dock-scheduling":
         return (
           <ProtectedComponent requiredPermission="view:dispatch">
             <DockSchedulingModule />
           </ProtectedComponent>
         )
-      // case "3d-view":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:inventory">
-      //       <Warehouse3DView />
-      //     </ProtectedComponent>
-      //   )
       case "orders":
         return (
           <ProtectedComponent requiredPermission="view:orders">
             <OrderFulfillmentModule />
           </ProtectedComponent>
         )
-      // case "dispatch":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:dispatch">
-      //       <DispatchModule />
-      //     </ProtectedComponent>
-      //   )
-      // case "returns":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:returns">
-      //       <ReturnsModule />
-      //     </ProtectedComponent>
-      //   )
-      // case "reports":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:reports">
-      //       <ReportsModule />
-      //     </ProtectedComponent>
-      //   )
-      // case "users":
-      //   return (
-      //     <ProtectedComponent requiredPermission="view:users" requiredRole={["admin", "manager"]}>
-      //       <UserManagementModule />
-      //     </ProtectedComponent>
-      //   )
+      case "dispatch":
+        return (
+          <ProtectedComponent requiredPermission="view:dispatch">
+            <DispatchModule />
+          </ProtectedComponent>
+        )
+      case "returns":
+        return (
+          <ProtectedComponent requiredPermission="view:returns">
+            <ReturnsModule />
+          </ProtectedComponent>
+        )
+      case "reports":
+        return (
+          <ProtectedComponent requiredPermission="view:reports">
+            <ReportsModule />
+          </ProtectedComponent>
+        )
+      case "users":
+        return (
+          <ProtectedComponent requiredPermission="view:users" requiredRole={["admin", "manager"]}>
+            <UserManagementModule />
+          </ProtectedComponent>
+        )
       case "loading-demo":
         return (
           <div className="flex items-center justify-center h-full">

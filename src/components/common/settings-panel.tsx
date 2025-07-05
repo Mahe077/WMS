@@ -1,19 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { X, Settings, Bell, Monitor, Palette, Shield, Zap } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { X, Settings, Bell, Monitor, Shield, Zap } from "lucide-react";
 
 interface SettingsPanelProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
@@ -45,17 +51,20 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     sessionTimeout: 60,
     requireReauth: false,
     auditLogging: true,
-  })
+  });
 
-  const handleSettingChange = (key: string, value: any) => {
-    setSettings((prev) => ({ ...prev, [key]: value }))
-  }
+  type SettingsKey = keyof typeof settings;
+  type SettingsValue = typeof settings[SettingsKey];
+
+  const handleSettingChange = (key: SettingsKey, value: SettingsValue) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = () => {
     // Save settings logic here
-    console.log("Saving settings:", settings)
-    onClose()
-  }
+    console.log("Saving settings:", settings);
+    onClose();
+  };
 
   const handleReset = () => {
     // Reset to defaults
@@ -78,10 +87,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       sessionTimeout: 60,
       requireReauth: false,
       auditLogging: true,
-    })
-  }
+    });
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
@@ -121,13 +130,18 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
               <div className="space-y-3 pl-6">
                 <div className="space-y-2">
-                  <Label htmlFor="warehouseName" className="text-xs font-medium">
+                  <Label
+                    htmlFor="warehouseName"
+                    className="text-xs font-medium"
+                  >
                     Warehouse Name
                   </Label>
                   <Input
                     id="warehouseName"
                     value={settings.warehouseName}
-                    onChange={(e) => handleSettingChange("warehouseName", e.target.value)}
+                    onChange={(e) =>
+                      handleSettingChange("warehouseName", e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -136,15 +150,28 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   <Label htmlFor="timezone" className="text-xs font-medium">
                     Timezone
                   </Label>
-                  <Select value={settings.timezone} onValueChange={(value) => handleSettingChange("timezone", value)}>
+                  <Select
+                    value={settings.timezone}
+                    onValueChange={(value) =>
+                      handleSettingChange("timezone", value)
+                    }
+                  >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                      <SelectItem value="America/Chicago">Central Time</SelectItem>
-                      <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                      <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
+                      <SelectItem value="America/New_York">
+                        Eastern Time
+                      </SelectItem>
+                      <SelectItem value="America/Chicago">
+                        Central Time
+                      </SelectItem>
+                      <SelectItem value="America/Denver">
+                        Mountain Time
+                      </SelectItem>
+                      <SelectItem value="America/Los_Angeles">
+                        Pacific Time
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -153,7 +180,12 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   <Label htmlFor="language" className="text-xs font-medium">
                     Language
                   </Label>
-                  <Select value={settings.language} onValueChange={(value) => handleSettingChange("language", value)}>
+                  <Select
+                    value={settings.language}
+                    onValueChange={(value) =>
+                      handleSettingChange("language", value)
+                    }
+                  >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -173,29 +205,41 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Bell className="h-4 w-4 text-gray-600" />
-                <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+                <h3 className="text-sm font-medium text-gray-900">
+                  Notifications
+                </h3>
               </div>
 
               <div className="space-y-3 pl-6">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="emailNotifications" className="text-xs font-medium">
+                  <Label
+                    htmlFor="emailNotifications"
+                    className="text-xs font-medium"
+                  >
                     Email Notifications
                   </Label>
                   <Switch
                     id="emailNotifications"
                     checked={settings.emailNotifications}
-                    onCheckedChange={(checked) => handleSettingChange("emailNotifications", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("emailNotifications", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="pushNotifications" className="text-xs font-medium">
+                  <Label
+                    htmlFor="pushNotifications"
+                    className="text-xs font-medium"
+                  >
                     Push Notifications
                   </Label>
                   <Switch
                     id="pushNotifications"
                     checked={settings.pushNotifications}
-                    onCheckedChange={(checked) => handleSettingChange("pushNotifications", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("pushNotifications", checked)
+                    }
                   />
                 </div>
 
@@ -206,26 +250,34 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   <Switch
                     id="soundEnabled"
                     checked={settings.soundEnabled}
-                    onCheckedChange={(checked) => handleSettingChange("soundEnabled", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("soundEnabled", checked)
+                    }
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="desktopNotifications" className="text-xs font-medium">
+                  <Label
+                    htmlFor="desktopNotifications"
+                    className="text-xs font-medium"
+                  >
                     Desktop Notifications
                   </Label>
                   <Switch
                     id="desktopNotifications"
                     checked={settings.desktopNotifications}
-                    onCheckedChange={(checked) => handleSettingChange("desktopNotifications", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("desktopNotifications", checked)
+                    }
                   />
                 </div>
               </div>
             </div>
 
-            <Separator />
+            {/* <Separator />*/}
 
             {/* Display Settings */}
+            {/*
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Palette className="h-4 w-4 text-gray-600" />
@@ -284,13 +336,15 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
               </div>
             </div>
 
-            <Separator />
+            <Separator /> */}
 
             {/* Operational Settings */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Zap className="h-4 w-4 text-gray-600" />
-                <h3 className="text-sm font-medium text-gray-900">Operations</h3>
+                <h3 className="text-sm font-medium text-gray-900">
+                  Operations
+                </h3>
               </div>
 
               <div className="space-y-3 pl-6">
@@ -301,12 +355,17 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   <Switch
                     id="autoRefresh"
                     checked={settings.autoRefresh}
-                    onCheckedChange={(checked) => handleSettingChange("autoRefresh", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("autoRefresh", checked)
+                    }
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="refreshInterval" className="text-xs font-medium">
+                  <Label
+                    htmlFor="refreshInterval"
+                    className="text-xs font-medium"
+                  >
                     Refresh Interval (seconds)
                   </Label>
                   <Input
@@ -315,7 +374,12 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     min="10"
                     max="300"
                     value={settings.refreshInterval}
-                    onChange={(e) => handleSettingChange("refreshInterval", Number.parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleSettingChange(
+                        "refreshInterval",
+                        Number.parseInt(e.target.value)
+                      )
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -326,7 +390,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   </Label>
                   <Select
                     value={settings.defaultView}
-                    onValueChange={(value) => handleSettingChange("defaultView", value)}
+                    onValueChange={(value) =>
+                      handleSettingChange("defaultView", value)
+                    }
                   >
                     <SelectTrigger className="h-8 text-sm">
                       <SelectValue />
@@ -341,13 +407,18 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="confirmActions" className="text-xs font-medium">
+                  <Label
+                    htmlFor="confirmActions"
+                    className="text-xs font-medium"
+                  >
                     Confirm Actions
                   </Label>
                   <Switch
                     id="confirmActions"
                     checked={settings.confirmActions}
-                    onCheckedChange={(checked) => handleSettingChange("confirmActions", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("confirmActions", checked)
+                    }
                   />
                 </div>
               </div>
@@ -364,7 +435,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
               <div className="space-y-3 pl-6">
                 <div className="space-y-2">
-                  <Label htmlFor="sessionTimeout" className="text-xs font-medium">
+                  <Label
+                    htmlFor="sessionTimeout"
+                    className="text-xs font-medium"
+                  >
                     Session Timeout (minutes)
                   </Label>
                   <Input
@@ -373,19 +447,29 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     min="15"
                     max="480"
                     value={settings.sessionTimeout}
-                    onChange={(e) => handleSettingChange("sessionTimeout", Number.parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleSettingChange(
+                        "sessionTimeout",
+                        Number.parseInt(e.target.value)
+                      )
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="requireReauth" className="text-xs font-medium">
+                  <Label
+                    htmlFor="requireReauth"
+                    className="text-xs font-medium"
+                  >
                     Require Re-authentication
                   </Label>
                   <Switch
                     id="requireReauth"
                     checked={settings.requireReauth}
-                    onCheckedChange={(checked) => handleSettingChange("requireReauth", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("requireReauth", checked)
+                    }
                   />
                 </div>
 
@@ -396,7 +480,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   <Switch
                     id="auditLogging"
                     checked={settings.auditLogging}
-                    onCheckedChange={(checked) => handleSettingChange("auditLogging", checked)}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange("auditLogging", checked)
+                    }
                   />
                 </div>
               </div>
@@ -420,5 +506,5 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
       </div>
     </>
-  )
+  );
 }

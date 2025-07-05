@@ -42,7 +42,7 @@ import InventoryPalletView from "@/components/modules/inventory-pallet-view"
 import DispatchModule from "@/components/modules/dispatch-module"
 import ReturnsModule from "@/components/modules/returns-module"
 import ReportsModule from "@/components/modules/reports-module"
-import UserManagementModule from "@/components/modules/user-management-module"
+import { UserManagementModule } from "@/components/modules/user-management-module"
 import { ReceivingModule } from "@/components/modules/receiving-module"
 
 function WMSDashboardContent() {

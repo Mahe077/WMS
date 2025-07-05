@@ -16,6 +16,7 @@ import {
   Eye,
   Edit,
   MoreVertical,
+  Trash2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,6 +54,10 @@ interface CustomTableProps<T> {
   totalItemsCount: number; // Changed to number
   goToPage: (page: number) => void;
   handleItemsPerPageChange: (itemsPerPage: number) => void;
+  //actions
+  viewEnabled?: boolean;
+  editEnabled?: boolean;
+  deleteEnabled?: boolean;
 }
 
 export function CustomTable<T>({
@@ -75,6 +80,10 @@ export function CustomTable<T>({
   totalItemsCount, // Now a number
   goToPage,
   handleItemsPerPageChange,
+  //actions
+  viewEnabled = true,
+  editEnabled = true,
+  deleteEnabled = true,
 }: CustomTableProps<T>) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -122,9 +131,7 @@ export function CustomTable<T>({
             {(renderFilters || renderCustomActions) && (
               <div className="space-y-4 mb-6">
                 {renderFilters && (
-                  <div className="rounded-lg">
-                    {renderFilters()}
-                  </div>
+                  <div className="rounded-lg">{renderFilters()}</div>
                 )}
                 {renderCustomActions && (
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -156,9 +163,13 @@ export function CustomTable<T>({
                     <tr key={index} className="border-b hover:bg-gray-50">
                       {columns.map((column) => (
                         <td key={String(column.key)} className="p-2">
-                          {column.render
-                            ? column.render(row[column.key], row)
-                            : String(row[column.key])}
+                          {column.render ? (
+                            column.render(row[column.key], row)
+                          ) : (
+                            <span className="text-sm text-gray-800">
+                              {String(row[column.key])}
+                            </span>
+                          )}
                         </td>
                       ))}
                       {(showDefaultActions || renderTableActions) && (
@@ -168,20 +179,29 @@ export function CustomTable<T>({
                               renderTableActions(row, index)
                             ) : (
                               <React.Fragment>
-                                <Button
+                                {viewEnabled && (<Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => onRowAction?.("view", row)}
                                 >
                                   <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button
+                                </Button>)}
+                                {editEnabled &&
+                                (<Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => onRowAction?.("edit", row)}
                                 >
                                   <Edit className="h-4 w-4" />
-                                </Button>
+                                </Button>)}
+                                {deleteEnabled &&(
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => onRowAction?.("delete", row)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>)}
                               </React.Fragment>
                             )}
                           </div>
@@ -194,9 +214,7 @@ export function CustomTable<T>({
             </div>
 
             {/* Pagination for desktop */}
-            <div className="mt-6">
-              {paginationComponent}
-            </div>
+            <div className="mt-6">{paginationComponent}</div>
           </CardContent>
         </Card>
       </div>
@@ -227,16 +245,24 @@ export function CustomTable<T>({
                       <div key={String(column.key)} className="mb-1">
                         {column.key === primaryColumns[0].key ? (
                           <div className="font-medium text-base truncate">
-                            {column.render
-                              ? column.render(row[column.key], row)
-                              : String(row[column.key])}
+                            {column.render ? (
+                              column.render(row[column.key], row)
+                            ) : (
+                              <span className="text-sm text-gray-800">
+                                {String(row[column.key])}
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div className="text-sm text-gray-600">
                             <span className="font-medium">{column.label}:</span>{" "}
-                            {column.render
-                              ? column.render(row[column.key], row)
-                              : String(row[column.key])}
+                            {column.render ? (
+                              column.render(row[column.key], row)
+                            ) : (
+                              <span className="text-sm text-gray-800">
+                                {String(row[column.key])}
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>
@@ -258,18 +284,30 @@ export function CustomTable<T>({
                           </div>
                         ) : (
                           <React.Fragment>
+                            {viewEnabled && (
                             <DropdownMenuItem
                               onClick={() => onRowAction?.("view", row)}
                             >
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </DropdownMenuItem>
+                            )}
+                            {editEnabled && (
                             <DropdownMenuItem
                               onClick={() => onRowAction?.("edit", row)}
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
+                            )}
+                            {deleteEnabled && (
+                            <DropdownMenuItem
+                              onClick={() => onRowAction?.("delete", row)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                            )}
                           </React.Fragment>
                         )}
                       </DropdownMenuContent>
@@ -291,9 +329,13 @@ export function CustomTable<T>({
                               {column.label}:
                             </span>
                             <span className="font-medium">
-                              {column.render
-                                ? column.render(row[column.key], row)
-                                : String(row[column.key])}
+                              {column.render ? (
+                                column.render(row[column.key], row)
+                              ) : (
+                                <span className="text-sm text-gray-800">
+                                  {String(row[column.key])}
+                                </span>
+                              )}
                             </span>
                           </div>
                         ))}
@@ -332,9 +374,7 @@ export function CustomTable<T>({
 
         {/* Pagination for mobile */}
         <Card>
-          <CardContent className="p-4">
-            {paginationComponent}
-          </CardContent>
+          <CardContent className="p-4">{paginationComponent}</CardContent>
         </Card>
       </div>
     </div>

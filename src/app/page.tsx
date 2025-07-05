@@ -17,7 +17,6 @@ import {
   Menu,
   X,
   Layers,
-  Calendar,
   Package2,
   LogOut,
 } from "lucide-react"
@@ -96,7 +95,6 @@ function WMSDashboardContent() {
     { id: "receiving", label: "Receiving", icon: Package, permission: "view:receiving" },
     { id: "inventory", label: "Inventory", icon: Warehouse, permission: "view:inventory" },
     { id: "pallet-view", label: "Pallet View", icon: Package2, permission: "view:inventory" },
-    { id: "bay-booking", label: "Bay Booking", icon: Calendar, permission: "view:dispatch" },
     { id: "dock-scheduling", label: "Dock Scheduling", icon: Truck, permission: "view:dispatch" },
     { id: "3d-view", label: "3D Warehouse", icon: Layers, permission: "view:inventory" },
     { id: "orders", label: "Orders", icon: FileText, permission: "view:orders" },

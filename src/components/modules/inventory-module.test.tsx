@@ -126,16 +126,19 @@ jest.mock('@/components/ui/filter-bar', () => {
   };
 });
 
-
 jest.mock('@/components/common/custom-table', () => ({
   CustomTable: ({
     data,
     onRowAction,
     renderExpandedContent,
+    goToPage,
+    handleItemsPerPageChange,
   }: {
     data: Array<{ sku: string; status?: string; holds?: string[]; [key: string]: unknown }>;
     onRowAction: (action: string, item: unknown) => void;
     renderExpandedContent?: (item: unknown) => React.ReactNode;
+    goToPage?: (page: number) => void;
+    handleItemsPerPageChange?: (itemsPerPage: number) => void;
   }) => (
     <div data-testid="custom-table">
       {data.map((item, index) => (
@@ -151,21 +154,13 @@ jest.mock('@/components/common/custom-table', () => ({
           )}
         </div>
       ))}
-    </div>
-  ),
-}));
-
-jest.mock('@/components/ui/pagination', () => ({
-  Pagination: ({
-    onPageChange, 
-    onItemsPerPageChange,
-  }: {
-    onPageChange: (page: number) => void;
-    onItemsPerPageChange: (itemsPerPage: number) => void;
-  }) => (
-    <div data-testid="pagination">
-      <button onClick={() => onPageChange(2)}>Next Page</button>
-      <button onClick={() => onItemsPerPageChange(20)}>Change Items Per Page</button>
+      {/* Pagination controls inside CustomTable mock */}
+      <div data-testid="custom-table-pagination">
+        <button onClick={() => goToPage && goToPage(2)}>Next Page</button>
+        <button onClick={() => handleItemsPerPageChange && handleItemsPerPageChange(20)} aria-label="Change Items Per Page">
+          Change Items Per Page
+        </button>
+      </div>
     </div>
   ),
 }));
@@ -223,8 +218,7 @@ describe('InventoryModule', () => {
 
     test('renders pagination', () => {
       render(<InventoryModule />);
-      
-      expect(screen.getByTestId('pagination')).toBeInTheDocument();
+      expect(screen.getByTestId('custom-table-pagination')).toBeInTheDocument();
     });
   });
 

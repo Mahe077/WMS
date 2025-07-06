@@ -1,5 +1,5 @@
 import {
-  DockBookingActivity,
+  DockBookingCategory,
   DockType,
   DockStatus,
   AlertType,
@@ -8,7 +8,8 @@ import {
   TemperatureControl,
   DockBookingPriority,
   PickListItemStages,
-  OrderStatus
+  OrderStatus,
+  ReportStatus
 } from "./enum"
 
 //null means all the given types are allowed
@@ -16,7 +17,7 @@ export type DockBookingSlot = {
   bayId: string
   timeSlot: string
   date: string
-  activity: DockBookingActivity | null
+  activity: DockBookingCategory | null
   customer?: string
   poNumber?: string
   shipmentId?: string
@@ -43,13 +44,15 @@ export type DockBooking = {
   endTime: string
   timeSlot?: string
   date: string
-  activity?: DockBookingActivity | null
+  activity: DockBookingCategory | null
   customer?: string
   poNumber?: string
   shipmentId?: string
   duration: number
   notes?: string
-  carrier?: string
+  carrier?: string //it is the shipping company?
+  truck?: string //truck number or identifier
+  driver?: string //driver name or identifier
   bookingRef: string
   vehicleType?: VehicleType | null
   temperatureControl?: TemperatureControl | null //if the docks can be different types, otherwise null
@@ -62,13 +65,12 @@ export type DockBooking = {
 }
 // This type is used for the form data when creating or updating a dock booking
 export type DockBookingFormData = {
-  activity: string
+  activity: DockBookingCategory | null
   customer: string
   poNumber: string
   shipmentId: string
   duration: string
-  notes: string,
-  type?: DockBookingActivity | null
+  notes: string
 }
 
 export type Dock = {
@@ -213,11 +215,13 @@ export interface FilterBarProps {
 }
 
 // remove later
-export const VEHICLE_DURATIONS = {
-  van: 30,
-  truck: 45,
-  container: 90,
-  trailer: 120,
+export const VEHICLE_DURATIONS: Record<VehicleType, number> = {
+  [VehicleType.Van]: 30,
+  [VehicleType.Truck]: 45,
+  [VehicleType.Container]: 90,
+  [VehicleType.Trailer]: 120,
+  [VehicleType.Railcar]: 180,
+  [VehicleType.AirFreight]: 60,
 }
 
 export const TIME_SLOTS = Array.from({ length: 32 }, (_, i) => {
@@ -261,8 +265,8 @@ export type OrderFormData = {
   customer: string
   orderNumber: string
   orderDate: string
-  status: string
-  priority: string
+  status: OrderStatus
+  priority: DockBookingPriority
   items: OrderItem[]
   dueDate: string
   carrier: string
@@ -342,7 +346,7 @@ export type Report = {
   name: string
   type: string // e.g., "inventory", "sales", "orders"
   generated: string // ISO date string
-  status: string // e.g., "completed", "processing", "failed"
+  status: ReportStatus // e.g., "completed", "processing", "failed"
   size: number // size in Kilobytes
   downloadUrl?: string // URL to download the report file
   parameters?: Record<string, unknown> // optional parameters used to generate the report

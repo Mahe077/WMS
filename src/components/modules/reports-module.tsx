@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { BarChart3, FileText, Calendar, TrendingUp, AlertTriangle } from "lucide-react"
 import { ReportsHistoryView } from "./reports/reports-history-view"
 import { Report } from "@/lib/types"
+import { ReportStatus } from "@/lib/enum"
 
 export function ReportsModule() {
   const [dateRange, setDateRange] = useState("today")
@@ -44,7 +45,7 @@ export function ReportsModule() {
       name: "Daily Inventory Report",
       type: "Inventory",
       generated: "2024-01-15 08:00",
-      status: "Completed",
+      status: ReportStatus.Completed,
       size: 2300,
     },
     {
@@ -52,7 +53,7 @@ export function ReportsModule() {
       name: "Weekly PO Audit",
       type: "Audit",
       generated: "2024-01-14 18:30",
-      status: "Completed",
+      status: ReportStatus.Failed,
       size: 1800,
     },
     {
@@ -60,7 +61,7 @@ export function ReportsModule() {
       name: "Activity Log - January",
       type: "Activity",
       generated: "2024-01-14 16:45",
-      status: "Processing",
+      status: ReportStatus.Processing,
       size: 4100,
     },
     {
@@ -68,7 +69,7 @@ export function ReportsModule() {
       name: "Lot Traceability - SKU-12345",
       type: "Traceability",
       generated: "2024-01-14 14:20",
-      status: "Completed",
+      status: ReportStatus.Completed,
       size: 856,
     },
   ]

@@ -343,7 +343,7 @@ describe('InventoryModule', () => {
       render(<InventoryModule />);
       
       // Mock data includes available items
-      const availableBadges = screen.getAllByText('available');
+      const availableBadges = screen.getAllByText('Available');
       expect(availableBadges.length).toBeGreaterThan(0);
     });
 

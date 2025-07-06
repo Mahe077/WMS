@@ -39,7 +39,7 @@ import { DockSchedulingModule } from "@/components/modules/dock-scheduling-modul
 import { OrderFulfillmentModule } from "@/components/modules/order-fulfillment-module"
 import { DashboardModule } from "@/components/modules/dashboard-module"
 import InventoryPalletView from "@/components/modules/inventory-pallet-view"
-import DispatchModule from "@/components/modules/dispatch-module"
+import { DispatchModule } from "@/components/modules/dispatch-module"
 import ReturnsModule from "@/components/modules/returns-module"
 import { ReportsModule } from "@/components/modules/reports-module"
 import { UserManagementModule } from "@/components/modules/user-management-module"

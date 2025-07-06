@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { UserPlus, Shield, Edit } from "lucide-react"
 import { UserView } from "./user-management-module/users-view"
+import { User } from "@/lib/types"
 
 export function UserManagementModule() {
   const [selectedView, setSelectedView] = useState("users")

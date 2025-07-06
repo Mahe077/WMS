@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Clock, ChevronLeft, ChevronRight, Thermometer, Package, Calendar, Truck, MoreVertical } from "lucide-react"
 import { Dock, DockBooking } from "@/lib/types"
-import { DockBookingPriority } from "@/lib/enum"
+import { DockBookingPriority, DockStatus } from "@/lib/enum"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { MobileDockSchedulingForm } from "./form/mobile-dock-scheduling-form"
 
@@ -192,7 +192,7 @@ export function DockSchedulingMobile({
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
                 {dock.name}
-                <Badge variant={dock.status === "active" ? "default" : "secondary"}>{dock.status}</Badge>
+                <Badge variant={dock.status === DockStatus.Active ? "default" : "secondary"}>{dock.status}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>

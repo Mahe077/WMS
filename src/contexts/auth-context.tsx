@@ -5,15 +5,7 @@ import { useRouter } from "next/navigation"
 import { useNotifications } from "@/contexts/app-context"
 import { loginApi, validateTokenApi } from "@/lib/api/auth";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
-
-// Types
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  permissions: string[]
-}
+import { User } from "@/lib/types";
 
 interface AuthState {
   user: User | null

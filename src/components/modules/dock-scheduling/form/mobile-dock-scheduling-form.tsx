@@ -33,7 +33,7 @@ export function MobileDockSchedulingForm({
     dockId: existingBooking?.dockId || "",
     startTime: existingBooking?.startTime || "09:00",
     vehicleType: existingBooking?.vehicleType || VehicleType.Truck,
-    duration: existingBooking?.duration || VEHICLE_DURATIONS.truck,
+    duration: existingBooking?.duration || VEHICLE_DURATIONS.Truck,
     carrier: existingBooking?.carrier || "",
     bookingRef: existingBooking?.bookingRef || "",
     temperatureControl: existingBooking?.temperatureControl || TemperatureControl.Ambient,
@@ -44,6 +44,7 @@ export function MobileDockSchedulingForm({
     estimatedPallets: existingBooking?.estimatedPallets || "",
     eta: existingBooking?.eta || "",
     notes: existingBooking?.notes || "",
+    activity: existingBooking?.activity || null,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,7 +81,7 @@ export function MobileDockSchedulingForm({
                   </SelectTrigger>
                   <SelectContent>
                     {docks
-                      .filter((d) => d.status === "active")
+                      .filter((d) => d.status === DockStatus.Active)
                       .map((dock) => (
                         <SelectItem key={dock.id} value={dock.id}>
                           {dock.name} ({dock.type})
@@ -128,16 +129,17 @@ export function MobileDockSchedulingForm({
                 <Label htmlFor="vehicleType">Vehicle Type</Label>
                 <Select
                   value={formData.vehicleType}
-                  onValueChange={(value) => setFormData({ ...formData, vehicleType: value as VehicleType})}
+                  onValueChange={(value) => setFormData({ ...formData, vehicleType: value as VehicleType })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="van">Van</SelectItem>
-                    <SelectItem value="truck">Truck</SelectItem>
-                    <SelectItem value="container">Container</SelectItem>
-                    <SelectItem value="trailer">Trailer</SelectItem>
+                    {Object.entries(VEHICLE_DURATIONS).map(([type, duration]) => (
+                      <SelectItem key={type} value={type}>
+                        {type} ({duration} min)
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -175,10 +177,11 @@ export function MobileDockSchedulingForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="ambient">Ambient</SelectItem>
-                      <SelectItem value="chilled">Chilled</SelectItem>
-                      <SelectItem value="frozen">Frozen</SelectItem>
+                      {Object.values(TemperatureControl).map((temp) => (
+                        <SelectItem key={temp} value={temp}>
+                          {temp}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -193,9 +196,11 @@ export function MobileDockSchedulingForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
+                      {Object.values(DockBookingPriority).map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

@@ -8,7 +8,7 @@ import { useNotifications } from "@/contexts/app-context"
 import { useMobile } from "@/hooks/use-mobile"
 import { DockSchedulingMobile } from "./dock-scheduling/dock-scheduling-mobile"
 import { Dock, DockBooking } from "@/lib/types"
-import { DockBookingPriority, DockStatus, DockType, TemperatureControl, VehicleType } from "@/lib/enum"
+import { DockBookingCategory, DockBookingPriority, DockStatus, DockType, TemperatureControl, VehicleType } from "@/lib/enum"
 import DockSchedulingDesk from "./dock-scheduling/dock-scheduling-desk"
 
 export function DockSchedulingModule() {
@@ -81,7 +81,7 @@ export function DockSchedulingModule() {
       equipment: ["forklift", "dock-leveler", "temperature-control", "overhead-door"],
     },
     {
-      id: "DOCK-0",
+      id: "DOCK-08",
       name: "Dock 8",
       type: DockType.Side,
       temperatureZones: ["ambient", "chilled", "frozen"],
@@ -110,11 +110,12 @@ export function DockSchedulingModule() {
       contactPerson: "John Smith",
       phoneNumber: "+1-555-0123",
       estimatedPallets: 15,
+      activity: DockBookingCategory.Dispatch,
     },
     {
       id: "BK-002",
       dockId: "DOCK-02",
-      startTime: "14:00",
+      startTime: "14:15",
       endTime: "15:30",
       date: selectedDate,
       carrier: "FedEx Ground",
@@ -127,11 +128,12 @@ export function DockSchedulingModule() {
       contactPerson: "Sarah Johnson",
       phoneNumber: "+1-555-0124",
       estimatedPallets: 25,
+      activity: DockBookingCategory.Blocked,
     },
     {
       id: "BK-003",
       dockId: "DOCK-03",
-      startTime: "16:00",
+      startTime: "16:30",
       endTime: "17:00",
       date: selectedDate,
       carrier: "UPS Standard",
@@ -139,11 +141,12 @@ export function DockSchedulingModule() {
       vehicleType: VehicleType.Truck,
       temperatureControl: TemperatureControl.Ambient,
       status: DockStatus.Loading,
-      duration: 60,
+      duration: 45,
       priority: DockBookingPriority.Medium,
       contactPerson: "Mike Wilson",
       phoneNumber: "+1-555-0125",
       estimatedPallets: 12,
+      activity: DockBookingCategory.Dispatch,
     },
   ])
 
@@ -200,11 +203,11 @@ export function DockSchedulingModule() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high":
+      case DockBookingPriority.High:
         return "border-l-red-500 bg-red-50"
-      case "medium":
+      case DockBookingPriority.Medium:
         return "border-l-yellow-500 bg-yellow-50"
-      case "low":
+      case DockBookingPriority.Low:
         return "border-l-green-500 bg-green-50"
       default:
         return "border-l-gray-500 bg-gray-50"
@@ -242,6 +245,7 @@ export function DockSchedulingModule() {
       phoneNumber: formData.phoneNumber,
       estimatedPallets: formData.estimatedPallets,
       notes: formData.notes,
+      activity: formData.activity ?? null,
     }
 
     if (editingBooking) {
@@ -311,7 +315,7 @@ export function DockSchedulingModule() {
   // Handle slot click (desktop only)
   const handleSlotClick = (dockId: string, time: string) => {
     const dock = docks.find((d) => d.id === dockId)
-    if (dock?.status !== "active") return
+    if (dock?.status !== DockStatus.Active) return
 
     const existingBooking = getBookingAtTime(dockId, time)
     if (existingBooking) {

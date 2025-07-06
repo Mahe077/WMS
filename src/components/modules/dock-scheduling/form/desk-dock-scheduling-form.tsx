@@ -49,7 +49,7 @@ export function DesktopBookingFormModal({
     dockId: existingBooking?.dockId || dock?.id || docks[0]?.id,
     startTime: existingBooking?.startTime || timeSlot || "09:00",
     vehicleType: existingBooking?.vehicleType || VehicleType.Truck,
-    duration: existingBooking?.duration || VEHICLE_DURATIONS.truck,
+    duration: existingBooking?.duration || VEHICLE_DURATIONS.Truck,
     carrier: existingBooking?.carrier || "",
     bookingRef: existingBooking?.bookingRef || "",
     temperatureControl:
@@ -61,6 +61,7 @@ export function DesktopBookingFormModal({
     estimatedPallets: existingBooking?.estimatedPallets || "",
     eta: existingBooking?.eta || "",
     notes: existingBooking?.notes || "",
+    activity: existingBooking?.activity || null,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -118,7 +119,7 @@ export function DesktopBookingFormModal({
                   </SelectTrigger>
                   <SelectContent>
                     {docks
-                      .filter((d) => d.status === "active")
+                      .filter((d) => d.status === DockStatus.Active)
                       .map((dock) => (
                         <SelectItem key={dock.id} value={dock.id}>
                           {dock.name} ({dock.type})
@@ -164,12 +165,11 @@ export function DesktopBookingFormModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="van">Van (30 min)</SelectItem>
-                    <SelectItem value="truck">Truck (60 min)</SelectItem>
-                    <SelectItem value="container">
-                      Container (90 min)
-                    </SelectItem>
-                    <SelectItem value="trailer">Trailer (120 min)</SelectItem>
+                    {Object.entries(VEHICLE_DURATIONS).map(([type, duration]) => (
+                      <SelectItem key={type} value={type}>
+                        {type} ({duration} min)
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -233,10 +233,11 @@ export function DesktopBookingFormModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="ambient">Ambient</SelectItem>
-                    <SelectItem value="chilled">Chilled</SelectItem>
-                    <SelectItem value="frozen">Frozen</SelectItem>
+                    {Object.values(TemperatureControl).map((temp) => (
+                      <SelectItem key={temp} value={temp}>
+                        {temp}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -256,9 +257,11 @@ export function DesktopBookingFormModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                    {Object.values(DockBookingPriority).map((priority) => (
+                      <SelectItem key={priority} value={priority}>
+                        {priority}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

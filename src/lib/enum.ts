@@ -78,12 +78,6 @@ export enum DockBookingPriority {
   Low = 'Low',
 }
 
-// export enum DockBookingCategory {
-//   Receiving = 'receiving',
-//   Dispatch = 'dispatch',
-//   Blocked = 'blocked',
-// }
-
 // Define vehicle types
 export enum VehicleType {
   Truck = 'Truck',

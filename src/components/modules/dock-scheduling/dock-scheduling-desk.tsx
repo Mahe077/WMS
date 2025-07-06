@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { DockBooking, Dock, TIME_SLOTS } from "@/lib/types";
 import { DesktopBookingFormModal } from "./form/desk-dock-scheduling-form";
-import { DockBookingPriority, DockType, TemperatureControl } from "@/lib/enum";
+import { DockBookingPriority, DockStatus, DockType, TemperatureControl } from "@/lib/enum";
 
 interface DockSchedulingProps {
   docks: Dock[];
@@ -231,7 +231,7 @@ export default function DockSchedulingDesk({
               <CardTitle className="text-sm font-medium flex items-center justify-between">
                 {dock.name}
                 <Badge
-                  variant={dock.status === "active" ? "default" : "secondary"}
+                  variant={dock.status === DockStatus.Active ? "default" : "secondary"}
                 >
                   {dock.status}
                 </Badge>
@@ -312,7 +312,7 @@ export default function DockSchedulingDesk({
                         <div
                           key={`${dock.id}-${timeSlot}`}
                           className={`min-h-[60px] rounded border-2 cursor-pointer transition-colors ${
-                            dock.status !== "active"
+                            dock.status !== DockStatus.Active
                               ? "bg-gray-200 border-gray-300 cursor-not-allowed"
                               : booking
                               ? isFirstSlot
@@ -338,7 +338,7 @@ export default function DockSchedulingDesk({
                             e.preventDefault();
                             if (
                               draggedBooking &&
-                              dock.status === "active" &&
+                              dock.status === DockStatus.Active &&
                               !getBookingAtTime(dock.id, timeSlot)
                             ) {
                               handleBookingMove(
@@ -403,7 +403,7 @@ export default function DockSchedulingDesk({
                               </div>
                             </div>
                           )}
-                          {!booking && dock.status === "active" && (
+                          {!booking && dock.status === DockStatus.Active && (
                             <div className="flex items-center justify-center h-full text-gray-400">
                               <Plus className="h-4 w-4" />
                             </div>

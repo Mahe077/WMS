@@ -31,6 +31,7 @@ export type User = {
   email: string
   role: string  // e.g., "admin", "user", "manager"
   status: string // e.g., "active", "inactive"
+  permissions: string[] // e.g., ["view_docks", "manage_bookings", "view_reports"]
   lastLogin?: string // optional, for tracking user activity
   createdAt?: string // optional, for tracking user creation date
   updatedAt?: string // optional, for tracking user updates
@@ -230,7 +231,6 @@ export const TIME_SLOTS = Array.from({ length: 32 }, (_, i) => {
   const minute = totalMinutes % 60
   return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
 })
-
 
 // order fulfillment types
 export type Order = {

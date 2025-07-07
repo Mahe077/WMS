@@ -14,7 +14,7 @@ import { User } from "@/lib/types"
 export function UserManagementModule() {
   const [selectedView, setSelectedView] = useState("users")
 
-  const users = [
+  const users:User[] = [
     {
       id: "USR-001",
       name: "John Doe",
@@ -22,7 +22,7 @@ export function UserManagementModule() {
       role: "Admin",
       status: "Active",
       lastLogin: "2024-01-15 14:30",
-      modules: ["All Modules"],
+      permissions: ["All Modules"],
     },
     {
       id: "USR-002",
@@ -31,7 +31,7 @@ export function UserManagementModule() {
       role: "Manager",
       status: "Active",
       lastLogin: "2024-01-15 12:15",
-      modules: ["Receiving", "Inventory", "Orders", "Reports"],
+      permissions: ["Receiving", "Inventory", "Orders", "Reports"],
     },
     {
       id: "USR-003",
@@ -40,7 +40,7 @@ export function UserManagementModule() {
       role: "Picker",
       status: "Active",
       lastLogin: "2024-01-15 09:45",
-      modules: ["Orders", "Inventory"],
+      permissions: ["Orders", "Inventory"],
     },
     {
       id: "USR-004",
@@ -49,7 +49,7 @@ export function UserManagementModule() {
       role: "Forklift Driver",
       status: "Inactive",
       lastLogin: "2024-01-14 16:20",
-      modules: ["Receiving", "Dispatch"],
+      permissions: ["Receiving", "Dispatch"],
     },
   ]
 

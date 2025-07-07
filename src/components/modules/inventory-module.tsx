@@ -36,7 +36,7 @@ export function InventoryModule() {
         lotNumber: "LOT240101",
         qty: 150,
         location: "A-12",
-        bbd: "2024-12-31",
+        bbd: "2025-07-31",
         status: InventoryItemStatus.Available,
         holds: [],
       },
@@ -46,7 +46,7 @@ export function InventoryModule() {
         lotNumber: "LOT240102",
         qty: 25,
         location: "A-13",
-        bbd: "2024-11-15",
+        bbd: "2025-11-15",
         status: InventoryItemStatus.OutOfStock,
         holds: [],
       },
@@ -56,7 +56,7 @@ export function InventoryModule() {
         lotNumber: "LOT240103",
         qty: 0,
         location: "B-05",
-        bbd: "2024-10-30",
+        bbd: "2025-10-30",
         status: InventoryItemStatus.QCHold,
         holds: [InventoryItemStatus.QCHold],
       },
@@ -69,7 +69,7 @@ export function InventoryModule() {
         location: `${String.fromCharCode(65 + (i % 5))}-${String(
           i + 1
         ).padStart(2, "0")}`,
-        bbd: `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(
+        bbd: `2025-${String(Math.floor(Math.random() * 12) + 1).padStart(
           2,
           "0"
         )}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, "0")}`,
@@ -112,7 +112,13 @@ export function InventoryModule() {
     },
     {
         title: "Expiring Soon",
-        value: allInventoryItems.filter(item => item.status === InventoryItemStatus.Blocked).length,
+        value: allInventoryItems.filter(item => {
+          if (!item.bbd) return false;
+          const bbdDate = new Date(item.bbd);
+          const now = new Date();
+          const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          return bbdDate >= now && bbdDate <= in30Days;
+        }).length,
         change: '',
         changeDescription: "Within 30 days",
         icon: AlertTriangle,
@@ -176,7 +182,11 @@ const filterFunctions: Record<string, (item: InventoryItem, filterValue: unknown
       case "hold":
         return item.status === InventoryItemStatus.QCHold;
       case "expiring":
-        return !!item.bbd && new Date(item.bbd) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        if (!item.bbd) return false;
+        const bbdDate = new Date(item.bbd);
+        const now = new Date();
+        const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        return bbdDate >= now && bbdDate <= in30Days;
       default:
         return true;
     }

@@ -188,8 +188,7 @@ const filterFunctions: Record<string, (item: InventoryItem, filterValue: unknown
   },
 
   bbd: (item, filterValue): boolean => {
-    // if (typeof filterValue !== "string") return true;
-    return !!item.bbd && new Date(item.bbd) <= new Date(filterValue as string);
+    return !!item.bbd && new Date(item.bbd) >= new Date(filterValue as string);
   },
 };
 

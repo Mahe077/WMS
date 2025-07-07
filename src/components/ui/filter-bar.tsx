@@ -1,20 +1,14 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { CustomCalender } from "./custom-calender";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, Filter, X, ChevronDownIcon } from "lucide-react";
+import { Selector } from "./selector";
+import { Search, Filter, X } from "lucide-react";
 import { FilterBarProps, FilterConfig } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Calendar } from "./calendar";
+
 import React from "react";
 
 export function FilterBar({
@@ -31,34 +25,20 @@ export function FilterBar({
   const hasActiveFilters = Object.values(filters).some(
     (value) => value && value !== "all" && value !== ""
   );
-  const [open, setOpen] = React.useState(false)
 
   const renderFilter = (config: FilterConfig) => {
     switch (config.type) {
       case 'select':
         return (
-          <Select
+          <Selector
             key={config.key}
             value={typeof filters[config.key] === "string" ? (filters[config.key] as string) : "all"}
-            onValueChange={(value) => onFilterChange(config.key, value)}
-          >
-            <SelectTrigger className={cn("w-full sm:w-48", config.width)}>
-              <SelectValue placeholder={config.placeholder || config.label} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All {config.label}</SelectItem>
-              {config.options?.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                  {option.count !== undefined && (
-                    <span className="ml-2 text-muted-foreground">
-                      ({option.count})
-                    </span>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(value) => onFilterChange(config.key, value)}
+            options={config.options || []}
+            placeholder={config.placeholder}
+            label={config.label}
+            widthClass={cn("w-full sm:w-48", config.width)}
+          />
         );
 
       case 'text':
@@ -74,40 +54,14 @@ export function FilterBar({
 
       case 'date':
         return (
-          // <Input
-          //   key={config.key}
-          //   type="date"
-          //   placeholder={config.placeholder || config.label}
-          //   value={filters[config.key] || ""}
-          //   onChange={(e) => onFilterChange(config.key, e.target.value)}
-          //   className={cn("w-full sm:w-48", config.width)}
-          // />
-          <Popover open={open} onOpenChange={setOpen} key={config.key}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="w-48 justify-between font-normal"
-              >
-                {filters[config.key] ? new Date(filters[config.key] as string).toLocaleDateString() : config.placeholder || config.label}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={
-                  filters[config.key]
-                    ? new Date(filters[config.key] as string)
-                    : undefined
-                }
-                captionLayout="dropdown"
-                onSelect={(date) => {
-                  onFilterChange(config.key, date)
-                }}
-              />
-            </PopoverContent>
-          </Popover>
+          <CustomCalender
+            key={config.key}
+            value={filters[config.key] as string | undefined}
+            onChange={(date) => onFilterChange(config.key, date)}
+            placeholder={config.placeholder}
+            label={config.label}
+            widthClass={cn("w-full sm:w-48", config.width)}
+          />
         );
 
       default:

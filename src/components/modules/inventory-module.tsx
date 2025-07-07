@@ -94,7 +94,7 @@ export function InventoryModule() {
     },
     {
         title: "Low Stock Items",
-        value: allInventoryItems.filter(item => item.status === InventoryItemStatus.OutOfStock).length,
+        value: allInventoryItems.filter(item => item.status === InventoryItemStatus.OutOfStock).length,// TODO:this should be based on the pallet configuration hwo mucha one pallet can contain compare with the current amount
         change: '',
         changeDescription: "Below minimum threshold",
         icon: ChevronsDown,
@@ -103,7 +103,7 @@ export function InventoryModule() {
     },
     {
         title: "Items on Hold",
-        value: allInventoryItems.filter(item => item.holds.length > 0).length,
+        value: allInventoryItems.filter(item => item.holds.length > 0).length,//TODO:this need to be changed
         change: '',
         changeDescription: "QC, damage, or legal holds",
         icon: Lock,

@@ -4,18 +4,17 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Warehouse, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { NotificationToast } from "@/components/common/notification-toast";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -31,11 +30,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 flex flex-col items-center text-center">
-          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
-            <Warehouse className="h-6 w-6 text-blue-600" />
+          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 mb-4">
+            {/* <Warehouse className="h-6 w-6 text-blue-600" /> */}
+            <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-8 w-8 lg:h-8 lg:w-22" priority />
           </div>
           <CardTitle className="text-2xl">
-            3PL Warehouse Management System
+            Waratah Logistics
           </CardTitle>
           <CardDescription>
             Enter your credentials to access the system

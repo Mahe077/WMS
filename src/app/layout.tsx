@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "3PL Warehouse Management System",
+  title: "Waratah Logistics",
   description: "A comprehensive warehouse management system for 3PL providers",
 };
 

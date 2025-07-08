@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -214,12 +215,13 @@ function WMSDashboardContent() {
             {/* Logo Section */}
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <Warehouse className="h-8 w-8 lg:h-10 lg:w-10 text-blue-600" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-8 w-8 lg:h-8 lg:w-22" priority />
+                {/* <Warehouse className="h-8 w-8 lg:h-10 lg:w-10 text-blue-600" /> */}
+                {/* <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div> */}
               </div>
               <div className="flex flex-col">
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">3PL WMS</h1>
-                <span className="text-xs text-gray-500 hidden sm:block">Warehouse Management</span>
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
+                <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
               </div>
               <Badge variant="secondary" className="hidden md:inline-flex bg-blue-50 text-blue-700 border-blue-200">
                 v2.1.0

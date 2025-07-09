@@ -12,6 +12,32 @@ export async function loginApi(email: string, password: string) {
   return res.json();
 }
 
+export async function forgotPasswordApi(email: string) {
+  const res = await fetch("/api/auth/forgot-password/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Forgot password request failed");
+  }
+  return res.json();
+}
+
+export async function resetPasswordApi(email: string, password: string) {
+  const res = await fetch("/api/auth/forgot-password/reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || "Reset password failed");
+  }
+  return res.json();
+}
+
 export async function validateTokenApi(token: string) {
   const res = await fetch("/api/auth/validate", {
     headers: { Authorization: `Bearer ${token}` },

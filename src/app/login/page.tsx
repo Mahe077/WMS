@@ -15,6 +15,7 @@ import { Lock } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { NotificationToast } from "@/components/common/notification-toast";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -57,9 +58,9 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-xs text-blue-600 hover:underline">
+                <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <Input
                 id="password"

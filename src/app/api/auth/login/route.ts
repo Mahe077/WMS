@@ -73,8 +73,12 @@ export async function POST(request: Request) {
       message: "Login successful",
     })
   } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An error occurred during token validation";
     return NextResponse.json(
-      { message: "An error occurred during login" },
+      { message: errorMessage },
       { status: 500 }
     )
   }

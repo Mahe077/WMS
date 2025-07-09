@@ -70,8 +70,12 @@ export async function GET(request: Request) {
       message: "Token is valid",
     })
   } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "An error occurred during token validation";
     return NextResponse.json(
-      { message: "An error occurred during token validation" },
+      { message: errorMessage },
       { status: 500 }
     )
   }

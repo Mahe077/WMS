@@ -3,7 +3,7 @@
 import { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { useNotifications } from "@/contexts/app-context"
-import { loginApi, validateTokenApi } from "@/lib/api/auth";
+import { loginApi, resetPasswordApi, validateTokenApi } from "@/lib/api/auth";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
 import { User } from "@/lib/types";
 
@@ -20,6 +20,8 @@ type AuthAction =
   | { type: "AUTH_START" }
   | { type: "LOGIN_SUCCESS"; payload: { user: User; token: string } }
   | { type: "AUTH_FAILURE"; payload: { error: string } }
+  | { type: "PASSWORD_RESET_SUCCESS" }
+  | { type: "PASSWORD_RESET_FAILURE"; payload: { error: string } }
   | { type: "LOGOUT"; payload?: { reason?: string } }
   | { type: "REFRESH_TOKEN"; payload: { token: string } }
   | { type: "UPDATE_ACTIVITY" }
@@ -91,6 +93,18 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         token: null,
         error: action.payload.error 
       }
+    case "PASSWORD_RESET_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        error: null,
+      }
+    case "PASSWORD_RESET_FAILURE":
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload.error,
+      }
     case "LOGOUT":
       return { 
         ...initialState,
@@ -111,6 +125,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 export interface AuthContextType {
   state: AuthState
   login: (email: string, password: string) => Promise<void>
+  resetPassword: (email: string, password: string) => Promise<void>
   logout: (reason?: string) => void
   refreshToken: () => Promise<void>
   can: (permission: string) => boolean
@@ -187,6 +202,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const resetPassword = async (email: string, password: string) => {
+    dispatch({ type: "AUTH_START" })
+
+    try {
+      await resetPasswordApi(email, password);
+
+      addNotification({
+        type: "success",
+        message: "Password reset successfully. You can now log in with your new password.",
+      })
+      dispatch({ type: "PASSWORD_RESET_SUCCESS" })
+      router.push("/login")
+    } catch (error) {
+      dispatch({ 
+        type: "PASSWORD_RESET_FAILURE", 
+        payload: { error: error instanceof Error ? error.message : "Password reset failed. Please try again." } 
+      })
+      addNotification({
+        type: "error",
+        message: error instanceof Error ? error.message : "Password reset failed. Please try again.",
+      })
+    }
+  }
+
   // Logout function
   const logout = () => {
     safeStorage.removeItem("wms_token")
@@ -237,6 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         state,
         login,
+        resetPassword,
         logout,
         refreshToken,
         can,

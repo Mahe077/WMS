@@ -18,5 +18,6 @@ export * from './customer.types';
 export * from './user.types';
 export * from './filters.types';
 export * from './report.types';
+export * from './return.types';
 export * from './shared.types';
 export * from './constants';

@@ -1,3 +1,41 @@
+// Define the enum for Permission Types
+// This enum can be used to manage user permissions in the application
+// Each permission type corresponds to a specific action that can be performed on a resource
+// For example, 'View' allows users to view resources, 'Create' allows them to create new resources, and so on
+// This can be used in conjunction with user roles to control access to different features or data in the WMS application
+export enum  PermissionType {
+  View = '1',
+  Create = '2',
+  Update = '3',
+  Delete = '4',
+}
+
+// Define the enum fot the features available in the WMS
+// This enum can be used to manage feature flags or permissions in the application
+export enum Features {
+  Dashboard = 'Dashboard',
+  Receiving = 'Receiving',
+  Dispatch = 'Dispatch',
+  Inventory = 'Inventory',
+  Orders = 'Orders',
+  Shipments = 'Shipments',
+  Returns = 'Returns',
+  DockManagement = 'DockManagement',
+  Reporting = 'Reporting',
+  UserManagement = 'UserManagement',
+  Settings = 'Settings',
+  Integrations = 'Integrations',
+  Analytics = 'Analytics',
+  QualityControl = 'QualityControl',
+  WarehouseLayout = 'WarehouseLayout',
+  TaskManagement = 'TaskManagement',
+  Notifications = 'Notifications',
+  MobileApp = 'MobileApp',
+  AuditLogs = 'AuditLogs',
+  CustomFields = 'CustomFields',
+  BarcodeScanning = 'BarcodeScanning',
+}
+
 //lets deine the enum for the different types of errors we can have
 export enum ErrorType {
   NotFound = 'NotFound',

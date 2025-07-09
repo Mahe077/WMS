@@ -1,4 +1,4 @@
-import { User } from "@/contexts/auth-context";
+import { User } from "../types";
 
 //permission checking functions
 export function can(user: User | null, permission: string): boolean {

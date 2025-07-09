@@ -4,7 +4,7 @@ export type User = {
   email: string
   role: string  // e.g., "admin", "user", "manager"
   status: string // e.g., "active", "inactive"
-  permissions?: string[] // optional, for role-based access control
+  permissions: string[] // optional, for role-based access control
   lastLogin?: string // optional, for tracking user activity
   createdAt?: string // optional, for tracking user creation date
   updatedAt?: string // optional, for tracking user updates

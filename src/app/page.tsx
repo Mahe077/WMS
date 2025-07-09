@@ -17,7 +17,6 @@ import {
   Settings,
   Menu,
   X,
-  Package2,
   LogOut,
 } from "lucide-react"
 import { LoadingDemo } from "@/components/ui/loading-demo"
@@ -100,7 +99,6 @@ function WMSDashboardContent() {
     { id: "dashboard", label: "Dashboard", icon: BarChart3, permission: null },
     { id: "receiving", label: "Receiving", icon: Package, permission: "view:receiving" },
     { id: "inventory", label: "Inventory", icon: Warehouse, permission: "view:inventory" },
-    { id: "pallet-view", label: "Pallet View", icon: Package2, permission: "view:inventory" },
     { id: "dock-scheduling", label: "Dock Scheduling", icon: Truck, permission: "view:dispatch" },
     { id: "orders", label: "Orders", icon: FileText, permission: "view:orders" },
     { id: "dispatch", label: "Dispatch", icon: Truck, permission: "view:dispatch" },

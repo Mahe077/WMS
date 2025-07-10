@@ -52,11 +52,15 @@ export function ReceivingModule() {
     onError: handleScanError,
   });
 
+  const { isOpen, isScanning } = scannerState;
+  const { startScanning } = scannerActions;
+
   useEffect(() => {
-    if (scannerState.isOpen && !scannerState.isScanning) {
-      scannerActions.startScanning();
+    if (isOpen && !isScanning) {
+      startScanning();
     }
-  }, [scannerState.isOpen, scannerState.isScanning, scannerActions]);
+  }, [isOpen, isScanning, startScanning]);
+
 
 
   const pendingASNs = [

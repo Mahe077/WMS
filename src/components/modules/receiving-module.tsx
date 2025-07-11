@@ -32,6 +32,7 @@ import { usePagination, useNotifications } from "@/contexts/app-context";
 import { CustomTable, TableColumn } from "../common/custom-table";
 import { BarcodeScannerDialog } from "../common/barcode-scanner-dialog";
 import { useBarcodeScanner } from "@/hooks/use-barcode-scanner";
+import { usePdfReport } from "@/hooks/use-pdf-report";
 
 type ReceiptItem = {
   lpn?: string;
@@ -46,7 +47,9 @@ type ReceiptItem = {
 
 export function ReceivingModule() {
   const [scannedLPN, setScannedLPN] = useState("");
+
   const { addNotification } = useNotifications();
+  const { createReport } = usePdfReport();
   const [scannerState, scannerActions] = useBarcodeScanner({
     onSuccess: handleScanSuccess,
     onError: handleScanError,
@@ -148,12 +151,17 @@ export function ReceivingModule() {
 
   const paginatedReceipts = getPageItems(allRecentReceipts);
 
-  const handleAction = (action: string, item?: ReceiptItem) => {
+  const handleAction = async (action: string, item?: ReceiptItem) => {
     addNotification({
       type: "success",
       message: `${action} ${item ? `for ${item.lpn || item.id}` : ""
         } completed successfully`,
     });
+    if (action === "Print Label" && item) {
+      // Example: Generate PDF report for the receipt item
+      await createReport("receiving_report", [item]);
+    }
+    console.log(`Action: ${action}`, item);
   };
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });

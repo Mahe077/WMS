@@ -1,6 +1,9 @@
+# Warehouse Management System (WMS) Frontend
+
 This project is a Warehouse Management System (WMS) frontend built with Next.js. It provides a modern, modular interface for managing inventory, dock scheduling, and order fulfillment operations. The application is structured for scalability and maintainability, using React components, custom hooks, and context providers.
 
 ### Main Features
+
 - **Inventory Management:** Track and manage inventory items, with sample data and UI components for listing and editing inventory.
 - **Dock Scheduling:** Schedule and manage dock operations, with dedicated modules for both desktop and mobile views.
 - **Order Fulfillment:** View and manage active orders and pick lists, supporting efficient order processing.
@@ -8,7 +11,16 @@ This project is a Warehouse Management System (WMS) frontend built with Next.js.
 - **Reusable UI Components:** Includes a library of UI elements (tables, dialogs, forms, notifications, etc.) for consistent design and rapid development.
 - **State Persistence:** Utilities for persisting state across sessions.
 
+### Technologies Used
+
+- **Framework:** [Next.js](https://nextjs.org/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components:** [Radix UI](https://www.radix-ui.com/) and custom components.
+- **Testing:** [Jest](https://jestjs.io/) and [React Testing Library](https://testing-library.com/)
+
 The codebase is organized under `src/` with clear separation of concerns:
+
 - `components/` for UI and feature modules
 - `contexts/` for global state management
 - `hooks/` for custom React hooks
@@ -23,12 +35,6 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -48,6 +54,6 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](httpshttps://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

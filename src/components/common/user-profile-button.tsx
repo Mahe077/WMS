@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Settings, HelpCircle, LogOut, ChevronDown, UserCircle, Palette } from "lucide-react"
+// import { Settings, HelpCircle, LogOut, ChevronDown, UserCircle, Palette } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
 interface UserProfileButtonProps {
@@ -66,9 +66,9 @@ export function UserProfileButton({ onLogout, onSettings }: UserProfileButtonPro
             </Badge>
           </div>
         </div>
-        <ChevronDown
+        {/* <ChevronDown
           className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-        />
+        /> */}
       </Button>
 
       {/* Mobile Profile Button */}
@@ -92,10 +92,10 @@ export function UserProfileButton({ onLogout, onSettings }: UserProfileButtonPro
       </Button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {/* {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
           {/* User Info */}
-          <div className="px-4 py-3 border-b border-gray-100">
+          {/* <div className="px-4 py-3 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold">
@@ -113,10 +113,10 @@ export function UserProfileButton({ onLogout, onSettings }: UserProfileButtonPro
                 </Badge>
               </div>
             </div>
-          </div>
+          </div>*/}
 
           {/* Menu Items */}
-          <div className="py-2">
+          {/* <div className="py-2">
             <Button
               variant="ghost"
               className="w-full justify-start px-4 py-2 text-sm hover:bg-gray-50"
@@ -182,7 +182,7 @@ export function UserProfileButton({ onLogout, onSettings }: UserProfileButtonPro
             </Button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

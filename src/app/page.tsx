@@ -14,7 +14,7 @@ import {
   Warehouse,
   FileText,
   RefreshCw,
-  Settings,
+  // Settings,
   Menu,
   X,
   LogOut,
@@ -233,7 +233,7 @@ function WMSDashboardContent() {
             <NotificationButton onToggle={() => setNotificationPanelOpen(true)} unreadCount={10} />
 
             {/* Settings Panel Toggle - Desktop Only */}
-            <ProtectedComponent requiredRole={["admin", "manager"]}>
+            {/* <ProtectedComponent requiredRole={["admin", "manager"]}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -242,7 +242,7 @@ function WMSDashboardContent() {
               >
                 <Settings className="h-5 w-5 text-gray-600" />
               </Button>
-            </ProtectedComponent>
+            </ProtectedComponent> */}
 
             {/* User Profile */}
             <UserProfileButton onLogout={logout} />
@@ -295,7 +295,8 @@ function WMSDashboardContent() {
             </div>
 
             {/* Mobile-only logout section */}
-            <div className="lg:hidden pt-6 mt-6 border-t border-gray-200">
+            {/* <div className="lg:hidden pt-6 mt-6 border-t border-gray-200"> */}
+            <div className="pt-6 mt-6 border-t border-gray-200">
               <Button
                 variant="ghost"
                 className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
@@ -311,7 +312,7 @@ function WMSDashboardContent() {
 
 
             {/* TODO:remove this part not needed */}
-            <div className="pt-6 mt-6 border-t border-gray-200">
+            {/* <div className="pt-6 mt-6 border-t border-gray-200">
               <div className="px-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 User Information
               </div>
@@ -324,7 +325,7 @@ function WMSDashboardContent() {
                   </Badge>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </nav>
 

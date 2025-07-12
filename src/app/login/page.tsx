@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { NotificationToast } from "@/components/common/notification-toast";
 import Image from "next/image";
 import Link from "next/link";

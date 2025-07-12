@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     
     // In a real app, you would decode the token and find the user
     // For this demo, we'll just return the admin user
-    const { password: _, ...userWithoutPassword } = users[0]
+    const { ...userWithoutPassword } = users[0]
     
     return NextResponse.json({
       user: userWithoutPassword,

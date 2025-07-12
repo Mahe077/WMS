@@ -63,7 +63,6 @@ The API interactions are handled by the functions in the `/src/lib/api` folder. 
 
 ## Missing or Inconsistent Logic
 
-- **Unused or duplicate components**: The codebase has some duplicate components, such as `custom-table.tsx` in both `/src/components/common` and `/src/components/ui`. This should be refactored to have a single source of truth.
 - **Incomplete flows**: The password reset flow is implemented on the frontend, but the backend API for it is not yet implemented.
 - **Circular dependencies**: There are no major circular dependencies detected in the codebase.
 - **Redundant logic**: There is some redundant logic in the `AuthContext` that can be simplified.

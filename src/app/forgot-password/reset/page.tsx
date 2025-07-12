@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
   Card,
   CardContent,

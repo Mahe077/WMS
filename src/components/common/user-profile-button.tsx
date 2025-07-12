@@ -6,12 +6,9 @@ import { Badge } from "@/components/ui/badge"
 // import { Settings, HelpCircle, LogOut, ChevronDown, UserCircle, Palette } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
-interface UserProfileButtonProps {
-  onLogout: () => void
-  onSettings?: () => void
-}
 
-export function UserProfileButton({ onLogout, onSettings }: UserProfileButtonProps) {
+
+export function UserProfileButton() {
   const [isOpen, setIsOpen] = useState(false)
   const { state: authState } = useAuth()
   const dropdownRef = useRef<HTMLDivElement>(null)

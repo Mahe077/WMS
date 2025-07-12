@@ -1,11 +1,12 @@
 "use client"
 
-import { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from "react"
+import { createContext, useReducer, useEffect, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { useNotifications } from "@/contexts/app-context"
-import { loginApi, resetPasswordApi, validateTokenApi } from "@/lib/api/auth";
+import { validateTokenApi } from "@/features/auth/api";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
 import { User } from "@/lib/types";
+
 
 interface AuthState {
   user: User | null
@@ -124,8 +125,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 // Create context
 export interface AuthContextType {
   state: AuthState
-  login: (email: string, password: string) => Promise<void>
-  resetPassword: (email: string, password: string) => Promise<void>
+  dispatch: React.Dispatch<AuthAction>
   logout: (reason?: string) => void
   refreshToken: () => Promise<void>
   can: (permission: string) => boolean
@@ -171,60 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuth()
   }, [])
-
-  // Login function
-  const login = async (email: string, password: string) => {
-    dispatch({ type: "AUTH_START" })
-
-    try {
-      const response = await loginApi(email, password);
-      const { user, token } = response
-      safeStorage.setItem("wms_token", token)
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: { user, token },
-      })
-      addNotification({
-        type: "success",
-        message: `Welcome back, ${user.name}!`,
-      })
-
-      router.push("/")
-    } catch (error) {
-      dispatch({ 
-        type: "AUTH_FAILURE", 
-        payload: { error: error instanceof Error ? error.message : "Login failed. Please try again." } 
-      })
-      addNotification({
-        type: "error",
-        message: error instanceof Error ? error.message : "Login failed. Please try again.",
-      })
-    }
-  }
-
-  const resetPassword = async (email: string, password: string) => {
-    dispatch({ type: "AUTH_START" })
-
-    try {
-      await resetPasswordApi(email, password);
-
-      addNotification({
-        type: "success",
-        message: "Password reset successfully. You can now log in with your new password.",
-      })
-      dispatch({ type: "PASSWORD_RESET_SUCCESS" })
-      router.push("/login")
-    } catch (error) {
-      dispatch({ 
-        type: "PASSWORD_RESET_FAILURE", 
-        payload: { error: error instanceof Error ? error.message : "Password reset failed. Please try again." } 
-      })
-      addNotification({
-        type: "error",
-        message: error instanceof Error ? error.message : "Password reset failed. Please try again.",
-      })
-    }
-  }
 
   // Logout function
   const logout = () => {
@@ -275,8 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         state,
-        login,
-        resetPassword,
+        dispatch,
         logout,
         refreshToken,
         can,
@@ -288,15 +233,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-// Custom hook to use the auth context
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
 }
 
 export { AuthContext, AUTH_CONFIG }

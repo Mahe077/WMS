@@ -22,7 +22,6 @@ The current architecture has a decent separation of concerns, but there are area
     *   **`lib/types`**: The `lib/types` folder is a good start, but having a single `index.ts` to export all types can become unwieldy. It's better to have type files co-located with the features they belong to.
 
 4.  **Unused or Redundant Modules**:
-    *   **Duplicate `custom-table.tsx`**: As mentioned in a previous analysis, there is a duplicate `custom-table.tsx` component. This should be consolidated.
     *   **Simulated Logic**: The forgot password flow is entirely simulated on the frontend. The backend API calls are commented out, and the logic is not functional.
 
 ## Suggested Folder Restructure

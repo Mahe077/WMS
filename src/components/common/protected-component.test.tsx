@@ -3,10 +3,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Authorize, ProtectedButton, ProtectedComponent, ProtectedInput, usePermissions } from './protected-component';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 // Mock useAuth from the auth-context module (not from protected-component)
-jest.mock('@/contexts/auth-context', () => ({
+jest.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: jest.fn(),
 }));
 

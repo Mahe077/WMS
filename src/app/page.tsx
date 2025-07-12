@@ -25,7 +25,6 @@ import { ProtectedRoute } from "@/components/common/protected-route"
 import { NotificationToast } from "@/components/common/notification-toast"
 import { AlertType } from "@/lib/enum"
 import { useApp, useNotifications } from "@/contexts/app-context"
-import { useAuth } from "@/contexts/auth-context"
 import { useUrlSync } from "@/hooks/use-url-sync"
 
 import { UserProfileButton } from "@/components/common/user-profile-button"
@@ -44,6 +43,7 @@ import { ReturnsModule } from "@/components/modules/returns-module"
 import { ReportsModule } from "@/components/modules/reports-module"
 import { UserManagementModule } from "@/components/modules/user-management-module"
 import { ReceivingModule } from "@/components/modules/receiving-module"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 
 function WMSDashboardContent() {
   const { state, dispatch } = useApp()
@@ -187,10 +187,6 @@ function WMSDashboardContent() {
   const handleLogout = () => {
     logout()
     setShowLogoutDialog(false)
-    addNotification({
-      type: "info",
-      message: "You have been logged out successfully",
-    })
   }
 
   return (

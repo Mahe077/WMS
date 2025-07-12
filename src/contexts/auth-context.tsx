@@ -1,8 +1,6 @@
 "use client"
 
 import { createContext, useReducer, useEffect, useState, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
-import { useNotifications } from "@/contexts/app-context"
 import { validateTokenApi } from "@/features/auth/api";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
 import { User } from "@/lib/types";
@@ -126,7 +124,6 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 export interface AuthContextType {
   state: AuthState
   dispatch: React.Dispatch<AuthAction>
-  logout: (reason?: string) => void
   refreshToken: () => Promise<void>
   can: (permission: string) => boolean
   hasRole: (role: string | string[]) => boolean
@@ -139,8 +136,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState)
-  const router = useRouter()
-  const { addNotification } = useNotifications()
   const [initialized, setInitialized] = useState(false)
 
   // Check for existing token on mount
@@ -171,17 +166,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkAuth()
   }, [])
-
-  // Logout function
-  const logout = () => {
-    safeStorage.removeItem("wms_token")
-    dispatch({ type: "LOGOUT" })
-    addNotification({
-      type: "info",
-      message: "You have been logged out.",
-    })
-    router.push("/login")
-  }
 
   // Permission check function
   const can = (permission: string) => canCheck(state.user, permission);
@@ -222,7 +206,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         state,
         dispatch,
-        logout,
         refreshToken,
         can,
         hasRole,

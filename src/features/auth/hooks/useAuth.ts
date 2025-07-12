@@ -67,5 +67,15 @@ export function useAuth() {
         }
     };
 
-    return { ...context, login, resetPassword };
+    const logout = (reason?: string) => {
+        localStorage.removeItem("wms_token");
+        dispatch({ type: "LOGOUT", payload: { reason } });
+        addNotification({
+            type: "info",
+            message: "You have been logged out.",
+        });
+        router.push("/login");
+    };
+
+    return { ...context, login, resetPassword, logout };
 }

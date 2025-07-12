@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
 import { useNotifications } from "@/contexts/app-context"
 import { LoadingSpinner } from "../ui/loading-spinner"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 
 interface ProtectedRouteProps {
   children: React.ReactNode

@@ -1,7 +1,6 @@
 import React from "react";
 import { render, act, waitFor } from "@testing-library/react";
-import { AuthProvider, AuthContext, AuthContextType } from "./auth-context";
-import { useContext } from "react";
+import { AuthProvider, AuthContextType } from "./auth-context";
 import { User } from "@/lib/types";
 
 // Mocks

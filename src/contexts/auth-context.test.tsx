@@ -14,10 +14,12 @@ jest.mock("@/contexts/app-context", () => ({
 // Mock the API modules used in the context
 const mockValidateTokenApi = jest.fn();
 const mockLoginApi = jest.fn();
+const mockLogoutApi = jest.fn();
 jest.mock("@/features/auth/api", () => ({
   validateTokenApi: (...args: unknown[]) => mockValidateTokenApi(...args),
   loginApi: (...args: unknown[]) => mockLoginApi(...args),
   resetPasswordApi: jest.fn(),
+  logoutApi: (...args: unknown[]) => mockLogoutApi(...args),
 }));
 
 jest.mock("@/lib/auth/permissions", () => ({

@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     const { ...userWithoutPassword } = user
 
     // Generate a mock token (in a real app, use JWT or similar)
-    const token = `mock-token-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+    const token = user.id
 
     return NextResponse.json({
       user: userWithoutPassword,

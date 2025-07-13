@@ -62,8 +62,21 @@ export async function GET(request: Request) {
     }
     
     // In a real app, you would decode the token and find the user
-    // For this demo, we'll just return the admin user
-    const { ...userWithoutPassword } = users[0]
+    // For this demo, we'll extract the user ID from the mock token
+    const token = authHeader.split(" ")[1];
+    const userId = token;
+
+    const user = users.find((u) => u.id === userId);
+    console.log("Validating token for user:", userId, user);
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Invalid token or user not found" },
+        { status: 401 }
+      );
+    }
+
+    const { ...userWithoutPassword } = user;
     
     return NextResponse.json({
       user: userWithoutPassword,

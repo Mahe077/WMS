@@ -1,10 +1,9 @@
 "use client"
 
-import { createContext, useReducer, useEffect, useState, type ReactNode } from "react"
+import { createContext, useReducer, useEffect, useState, type ReactNode, useCallback } from "react"
 import { validateTokenApi } from "@/features/auth/api";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
-import { User } from "@/lib/types";
-
+import { User } from "@/features/auth/types";
 
 interface AuthState {
   user: User | null
@@ -173,23 +172,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Role check function
   const hasRole = (role: string | string[]) => hasRoleCheck(state.user, role);
 
-  // Don't render children until we've checked for an existing token
-  if (!initialized) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-
   // Refresh token function (stub implementation)
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     // In a real app, call your API to refresh the token and update state
     // For now, just dispatch REFRESH_TOKEN with the current token
     if (state.token) {
       dispatch({ type: "REFRESH_TOKEN", payload: { token: state.token } })
     }
-  }
+  }, [state.token, dispatch])
 
   // Clear error function
   const clearError = () => {
@@ -200,6 +190,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateActivity = () => {
     dispatch({ type: "UPDATE_ACTIVITY" })
   }
+
+  // Effect for session timeout and token refresh
+  useEffect(() => {
+    let activityTimer: NodeJS.Timeout | undefined;
+    let tokenRefreshInterval: NodeJS.Timeout | undefined;
+
+    const resetActivityTimer = () => {
+      if (activityTimer) clearTimeout(activityTimer);
+      activityTimer = setTimeout(() => {
+        if (state.isAuthenticated) {
+          dispatch({ type: "LOGOUT", payload: { reason: "Session timed out due to inactivity." } });
+          safeStorage.removeItem("wms_token");
+        }
+      }, AUTH_CONFIG.SESSION_TIMEOUT);
+    };
+
+    if (state.isAuthenticated) {
+      // Initialize and reset activity timer on activity
+      resetActivityTimer();
+      window.addEventListener("mousemove", resetActivityTimer);
+      window.addEventListener("keydown", resetActivityTimer);
+      window.addEventListener("click", resetActivityTimer);
+
+      // Set up token refresh interval
+      tokenRefreshInterval = setInterval(() => {
+        refreshToken();
+      }, AUTH_CONFIG.TOKEN_REFRESH_INTERVAL);
+    }
+
+    return () => {
+      if (activityTimer) clearTimeout(activityTimer);
+      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+      window.removeEventListener("mousemove", resetActivityTimer);
+      window.removeEventListener("keydown", resetActivityTimer);
+      window.removeEventListener("click", resetActivityTimer);
+    };
+  }, [state.isAuthenticated, state.lastActivity, refreshToken]); // Re-run when authentication status or last activity changes
+
+  // Don't render children until we've checked for an existing token
+  if (!initialized) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  
 
   return (
     <AuthContext.Provider

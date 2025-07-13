@@ -77,13 +77,12 @@ describe("AuthProvider", () => {
   });
 
   it("initializes with no user if no token", async () => {
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-    });
+    const { queryByTestId } = render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
     expect(localStorage.getItem("wms_token")).toBeNull();
   });
 
@@ -99,11 +98,12 @@ describe("AuthProvider", () => {
       },
       token: "valid-token",
     });
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     );
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
     // Wait for the context to finish initializing and set the user
     await waitFor(() => getByTestId("isAuthenticated").textContent === "yes");
     expect(mockValidateTokenApi).toHaveBeenCalledWith("valid-token");
@@ -118,11 +118,12 @@ describe("AuthProvider", () => {
       ok: true,
       json: async () => ({ user: { id: "1", name: "Test", email: "t@e.com", role: "admin", permissions: [] } }),
     })
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     )
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
     
     await waitFor(() => getByText("Logout"))
     await act(async () => {

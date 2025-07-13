@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/contexts/auth-context";
 import { useNotifications } from "@/contexts/app-context";
-import { loginApi, resetPasswordApi } from "@/features/auth/api";
+import { loginApi, resetPasswordApi, forgotPasswordApi, logoutApi } from "@/features/auth/api";
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -67,15 +67,44 @@ export function useAuth() {
         }
     };
 
-    const logout = (reason?: string) => {
-        localStorage.removeItem("wms_token");
-        dispatch({ type: "LOGOUT", payload: { reason } });
-        addNotification({
-            type: "info",
-            message: "You have been logged out.",
-        });
-        router.push("/login");
+    const forgotPassword = async (email: string) => {
+        dispatch({ type: "AUTH_START" });
+
+        try {
+            await forgotPasswordApi(email);
+
+            addNotification({
+                type: "success",
+                message: "Password reset email sent. Please check your inbox.",
+            });
+            dispatch({ type: "PASSWORD_RESET_SUCCESS" }); // Re-using this for now
+        } catch (error) {
+            dispatch({ 
+                type: "PASSWORD_RESET_FAILURE", 
+                payload: { error: error instanceof Error ? error.message : "Forgot password failed. Please try again." } 
+            });
+            addNotification({
+                type: "error",
+                message: error instanceof Error ? error.message : "Forgot password failed. Please try again.",
+            });
+        }
     };
 
-    return { ...context, login, resetPassword, logout };
+    const logout = async (reason?: string) => {
+        try {
+            await logoutApi();
+        } catch (error) {
+            console.error("Logout API failed:", error);
+        } finally {
+            localStorage.removeItem("wms_token");
+            dispatch({ type: "LOGOUT", payload: { reason } });
+            addNotification({
+                type: "info",
+                message: "You have been logged out.",
+            });
+            router.push("/login");
+        }
+    };
+
+    return { ...context, login, resetPassword, forgotPassword, logout };
 }

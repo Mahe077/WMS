@@ -23,8 +23,6 @@ export function findFirstAllowedModule(user: User | null): string {
   if (can(user, modulePermissions["/dashboard"])) {
     return "/dashboard";
   }
-
-  console.log("User permissions:", user.permissions);
   
   // Iterate through other modules in a defined order
   const orderedModules = [

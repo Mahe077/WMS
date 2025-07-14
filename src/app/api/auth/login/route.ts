@@ -62,7 +62,8 @@ export async function POST(request: Request) {
     }
 
     // Create a user object without the password
-    const { ...userWithoutPassword } = user
+    //eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...userWithoutPassword } = user
 
     // Generate a mock token (in a real app, use JWT or similar)
     const token = user.id

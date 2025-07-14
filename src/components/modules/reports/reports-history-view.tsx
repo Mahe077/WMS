@@ -25,13 +25,17 @@ export function ReportsHistoryView({ recentReports }: ReportsHistoryViewProps) {
     }
   };
 
-  const renderSizeBadge = (size: number) => {
-    if (size < 1000) {
-      return <Badge variant="outline">{size} KB</Badge>;
-    } else {
-        return <Badge variant="outline">{(size / 1000).toFixed(2)} MB</Badge>;
-    }
-}
+const formatSize = (size: number) => {
+  if (size < 1024) {
+    return `${size} KB`;
+  } else {
+    return `${(size / 1024).toFixed(2)} MB`;
+  }
+};
+
+const renderSizeBadge = (size: number) => (
+  <Badge variant="outline">{formatSize(size)}</Badge>
+);
 
   const tableColumns: TableColumn<Report>[] = [
     { key: "id", label: "Report ID", priority: "high" },
@@ -54,7 +58,7 @@ export function ReportsHistoryView({ recentReports }: ReportsHistoryViewProps) {
     goToPage,
     getPageItems,
     setPagination,
-  } = usePagination("repots-history", recentReports.length, 10);
+  } = usePagination("reports-history", recentReports.length, 10);
 
   const paginateReports = getPageItems(recentReports);
 

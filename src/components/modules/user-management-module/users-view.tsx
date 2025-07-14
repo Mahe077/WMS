@@ -124,15 +124,15 @@ export function UserView({ users }: UserViewProps) {
         onRowAction={(action, row) => {
           if (action === "view") {
             // Handle view action
-            console.log("View order", row);
-            // e.g., navigate to order details page
+            console.log("View user", row);
+            // e.g., navigate to user details page
           } else if (action === "pick") {
             // Handle pick action
-            console.log("Pick order", row);
-            // e.g., trigger pick workflow
+            console.log("Pick user", row);
+            // e.g., trigger pick workflow for user
           } else {
             // Handle other actions
-            console.log("Other action", action, row);
+            console.log("Other user action", action, row);
           }
           addNotification({
             type: "success",

@@ -270,7 +270,7 @@ export function DockSchedulingMobile({
                         >
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() =>  booking.id && handleDeleteBooking(booking.id)}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => booking.id && handleDeleteBooking(booking.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

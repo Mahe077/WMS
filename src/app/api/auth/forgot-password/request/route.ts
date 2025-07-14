@@ -1,5 +1,4 @@
-// In-memory store for demo only
-const pinStore = new Map<string, string>();
+import { pinStore } from "@/lib/pin-store";
 
 export async function POST(request: Request) {
   const { email } = await request.json();
@@ -14,4 +13,4 @@ export async function POST(request: Request) {
   return new Response(JSON.stringify({ message: "PIN sent" }), { status: 200 });
 }
 
-export { pinStore };
+

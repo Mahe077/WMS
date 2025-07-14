@@ -17,15 +17,15 @@ const users = [
     password: "manager123",
     role: "manager",
     permissions: [
-      "view:inventory",
-      "edit:inventory",
-      "view:orders",
-      "edit:orders",
-      "view:receiving",
-      "edit:receiving",
-      "view:dispatch",
-      "edit:dispatch",
-      "view:reports",
+      "inventory.view",
+      "inventory.edit",
+      "order-fulfillment.view",
+      "order-fulfillment.edit",
+      "receiving.view",
+      "receiving.edit",
+      "dispatch.view",
+      "dispatch.edit",
+      "reports.view",
     ],
   },
   {
@@ -34,7 +34,7 @@ const users = [
     email: "receiving@example.com",
     password: "receiving123",
     role: "staff",
-    permissions: ["view:inventory", "view:receiving", "edit:receiving"],
+    permissions: ["inventory.view", "receiving.view", "receiving.edit"],
   },
   {
     id: "usr-004",
@@ -42,7 +42,7 @@ const users = [
     email: "dispatch@example.com",
     password: "dispatch123",
     role: "staff",
-    permissions: ["view:inventory", "view:orders", "view:dispatch", "edit:dispatch"],
+    permissions: ["inventory.view", "order-fulfillment.view", "dispatch.view", "dispatch.edit"],
   },
 ]
 
@@ -62,8 +62,23 @@ export async function GET(request: Request) {
     }
     
     // In a real app, you would decode the token and find the user
-    // For this demo, we'll just return the admin user
-    const { password: _, ...userWithoutPassword } = users[0]
+    // For this demo, we'll extract the user ID from the mock token
+    const token = authHeader.split("-")[1];
+    const userId = token;
+
+    console.log("Validating token for user ID:", userId, " with token: ", token);
+
+    const user = users.find((u) => u.role === userId);
+    console.log("Validating token for user:", userId, user);
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "Invalid token or user not found" },
+        { status: 401 }
+      );
+    }
+
+    const { ...userWithoutPassword } = user;
     
     return NextResponse.json({
       user: userWithoutPassword,

@@ -1,4 +1,4 @@
-import { pinStore } from "../request/route";
+import { pinStore } from "@/lib/pin-store";
 
 export async function POST(request: Request) {
   const { email, pin } = await request.json();

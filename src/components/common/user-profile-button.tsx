@@ -3,9 +3,8 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 // import { Settings, HelpCircle, LogOut, ChevronDown, UserCircle, Palette } from "lucide-react"
-import { useAuth } from "@/contexts/auth-context"
-
 interface UserProfileButtonProps {
   onLogout: () => void
   onSettings?: () => void

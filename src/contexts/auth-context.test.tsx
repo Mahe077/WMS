@@ -1,7 +1,8 @@
 import React from "react";
 import { render, act, waitFor } from "@testing-library/react";
-import { AuthProvider, AuthContext, AuthContextType, User } from "./auth-context";
-import { useContext } from "react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { User } from "@/features/auth/types";
+import { AuthContextType, AuthProvider } from "@/providers/auth-provider";
 
 // Mocks
 const mockPush = jest.fn();
@@ -15,9 +16,12 @@ jest.mock("@/contexts/app-context", () => ({
 // Mock the API modules used in the context
 const mockValidateTokenApi = jest.fn();
 const mockLoginApi = jest.fn();
-jest.mock("@/lib/api/auth", () => ({
+const mockLogoutApi = jest.fn();
+jest.mock("@/features/auth/api", () => ({
   validateTokenApi: (...args: unknown[]) => mockValidateTokenApi(...args),
   loginApi: (...args: unknown[]) => mockLoginApi(...args),
+  resetPasswordApi: jest.fn(),
+  logoutApi: (...args: unknown[]) => mockLogoutApi(...args),
 }));
 
 jest.mock("@/lib/auth/permissions", () => ({
@@ -48,7 +52,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
 function TestComponent() {
-  const ctx = useContext(AuthContext) as AuthContextType;
+  const ctx = useAuth();
   if (!ctx) return null;
   return (
     <div>
@@ -58,9 +62,6 @@ function TestComponent() {
       <span data-testid="user">
         {ctx.state.user ? ctx.state.user.name : "none"}
       </span>
-      <button onClick={() => ctx.login("test@example.com", "password")}>
-        Login
-      </button>
       <button onClick={() => ctx.logout("test")}>Logout</button>
       <button onClick={() => ctx.clearError()}>ClearError</button>
       <button onClick={() => ctx.updateActivity()}>UpdateActivity</button>
@@ -77,13 +78,12 @@ describe("AuthProvider", () => {
   });
 
   it("initializes with no user if no token", async () => {
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-    });
+    const { queryByTestId } = render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
     expect(localStorage.getItem("wms_token")).toBeNull();
   });
 
@@ -99,63 +99,19 @@ describe("AuthProvider", () => {
       },
       token: "valid-token",
     });
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     );
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
     // Wait for the context to finish initializing and set the user
     await waitFor(() => getByTestId("isAuthenticated").textContent === "yes");
     expect(mockValidateTokenApi).toHaveBeenCalledWith("valid-token");
     expect(getByTestId("user").textContent).toBe("Test");
   });
 
-  it("login success", async () => {
-    mockLoginApi.mockResolvedValueOnce({
-      user: {
-        id: "1",
-        name: "Test",
-        email: "t@e.com",
-        role: "admin",
-        permissions: ["read"],
-      },
-      token: "abc",
-    });
-    const { getByText, getByTestId } = render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-    await act(async () => {
-      getByText("Login").click();
-    });
-    await waitFor(() =>
-      expect(getByTestId("isAuthenticated").textContent).toBe("yes")
-    );
-    expect(localStorage.getItem("wms_token")).toBe("abc");
-    expect(mockAddNotification).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" })
-    );
-    expect(mockPush).toHaveBeenCalledWith("/");
-  });
-
-  it("login failure", async () => {
-    mockValidateTokenApi.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ message: "Invalid credentials" }),
-    });
-    const { getByText } = render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-    await act(async () => {
-      getByText("Login").click();
-    });
-    expect(mockAddNotification).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" })
-    );
-  });
+  
 
   it("logout resets state and removes token", async () => {
     localStorage.setItem("wms_token", "abc")
@@ -163,13 +119,14 @@ describe("AuthProvider", () => {
       ok: true,
       json: async () => ({ user: { id: "1", name: "Test", email: "t@e.com", role: "admin", permissions: [] } }),
     })
-    const { getByText } = render(
+    const { getByText, queryByTestId } = render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>
     )
-    // Wait for the "Login" button to appear (i.e., TestComponent rendered)
-    await waitFor(() => getByText("Login"))
+    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
+    
+    await waitFor(() => getByText("Logout"))
     await act(async () => {
       getByText("Logout").click()
     })
@@ -189,7 +146,7 @@ describe("AuthProvider", () => {
       token: "valid-token",
     });
     function PermTest() {
-      const ctx = useContext(AuthContext) as AuthContextType;
+      const ctx = useAuth();
       return (
         <>
           <span data-testid="can-read">{ctx.can("read") ? "yes" : "no"}</span>
@@ -222,7 +179,7 @@ describe("AuthProvider", () => {
       token: "valid-token",
     });
     function PermTest() {
-      const ctx = useContext(AuthContext) as AuthContextType;
+      const ctx = useAuth();
       return (
         <>
           <span data-testid="can-read">{ctx.can("read") ? "yes" : "no"}</span>
@@ -255,7 +212,7 @@ describe("AuthProvider", () => {
       token: "valid-token",
     });
     function RoleTest() {
-      const ctx = useContext(AuthContext) as AuthContextType;
+      const ctx = useAuth();
       return (
         <>
           <span data-testid="single">
@@ -281,34 +238,7 @@ describe("AuthProvider", () => {
     expect(getByTestId("multi2").textContent).toBe("no");
   });
 
-  it("clearError resets error", async () => {
-    // Simulate success state
-    mockLoginApi.mockResolvedValueOnce({
-      user: {
-        id: "1",
-        name: "Test",
-        email: "t@e.com",
-        role: "admin",
-        permissions: [],
-      },
-      token: "abc",
-    });
-    const { getByText } = render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
-    );
-    await act(async () => {
-      getByText("Login").click();
-    });
-    await act(async () => {
-      getByText("ClearError").click();
-    });
-    // Should show a success notification after login
-    expect(mockAddNotification).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" })
-    );
-  });
+  
 
   it("updateActivity updates lastActivity", async () => {
     mockValidateTokenApi.mockResolvedValueOnce({
@@ -325,7 +255,7 @@ describe("AuthProvider", () => {
     });
     let ctx: AuthContextType;
     function ActivityTest() {
-      ctx = useContext(AuthContext) as AuthContextType;
+      ctx = useAuth();
       return <button onClick={() => ctx.updateActivity()}>Update</button>;
     }
     const { getByText } = render(

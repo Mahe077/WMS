@@ -1,11 +1,9 @@
 "use client"
 
-import { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
-import { useNotifications } from "@/contexts/app-context"
-import { loginApi, resetPasswordApi, validateTokenApi } from "@/lib/api/auth";
+import { createContext, useReducer, useEffect, useState, useCallback, type ReactNode } from "react"
+import { validateTokenApi } from "@/features/auth/api";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
-import { User } from "@/lib/types";
+import { User } from "@/features/auth/types";
 
 interface AuthState {
   user: User | null
@@ -85,13 +83,13 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         lastActivity: Date.now(),
       }
     case "AUTH_FAILURE":
-      return { 
-        ...state, 
-        isLoading: false, 
-        isAuthenticated: false, 
-        user: null, 
+      return {
+        ...state,
+        isLoading: false,
+        isAuthenticated: false,
+        user: null,
         token: null,
-        error: action.payload.error 
+        error: action.payload.error
       }
     case "PASSWORD_RESET_SUCCESS":
       return {
@@ -106,9 +104,9 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         error: action.payload.error,
       }
     case "LOGOUT":
-      return { 
+      return {
         ...initialState,
-        error: action.payload?.reason ? `Logged out: ${action.payload.reason}` : null 
+        error: action.payload?.reason ? `Logged out: ${action.payload.reason}` : null
       }
     case "REFRESH_TOKEN":
       return { ...state, token: action.payload.token, lastActivity: Date.now() }
@@ -124,9 +122,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 // Create context
 export interface AuthContextType {
   state: AuthState
-  login: (email: string, password: string) => Promise<void>
-  resetPassword: (email: string, password: string) => Promise<void>
-  logout: (reason?: string) => void
+  dispatch: React.Dispatch<AuthAction>
   refreshToken: () => Promise<void>
   can: (permission: string) => boolean
   hasRole: (role: string | string[]) => boolean
@@ -139,13 +135,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState)
-  const router = useRouter()
-  const { addNotification } = useNotifications()
   const [initialized, setInitialized] = useState(false)
 
   // Check for existing token on mount
   useEffect(() => {
     const checkAuth = async () => {
+      dispatch({ type: "AUTH_START" });
       const token = safeStorage.getItem("wms_token")
       if (token) {
         try {
@@ -165,101 +160,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             payload: { error: "Invalid or expired token" },
           })
         }
+      } else {
+        // No token found, so authentication fails immediately
+        dispatch({
+          type: "AUTH_FAILURE",
+          payload: { error: "No authentication token found" },
+        });
       }
-      setInitialized(true)
+      setInitialized(true);
     }
 
     checkAuth()
   }, [])
 
-  // Login function
-  const login = async (email: string, password: string) => {
-    dispatch({ type: "AUTH_START" })
-
-    try {
-      const response = await loginApi(email, password);
-      const { user, token } = response
-      safeStorage.setItem("wms_token", token)
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: { user, token },
-      })
-      addNotification({
-        type: "success",
-        message: `Welcome back, ${user.name}!`,
-      })
-
-      router.push("/")
-    } catch (error) {
-      dispatch({ 
-        type: "AUTH_FAILURE", 
-        payload: { error: error instanceof Error ? error.message : "Login failed. Please try again." } 
-      })
-      addNotification({
-        type: "error",
-        message: error instanceof Error ? error.message : "Login failed. Please try again.",
-      })
-    }
-  }
-
-  const resetPassword = async (email: string, password: string) => {
-    dispatch({ type: "AUTH_START" })
-
-    try {
-      await resetPasswordApi(email, password);
-
-      addNotification({
-        type: "success",
-        message: "Password reset successfully. You can now log in with your new password.",
-      })
-      dispatch({ type: "PASSWORD_RESET_SUCCESS" })
-      router.push("/login")
-    } catch (error) {
-      dispatch({ 
-        type: "PASSWORD_RESET_FAILURE", 
-        payload: { error: error instanceof Error ? error.message : "Password reset failed. Please try again." } 
-      })
-      addNotification({
-        type: "error",
-        message: error instanceof Error ? error.message : "Password reset failed. Please try again.",
-      })
-    }
-  }
-
-  // Logout function
-  const logout = () => {
-    safeStorage.removeItem("wms_token")
-    dispatch({ type: "LOGOUT" })
-    addNotification({
-      type: "info",
-      message: "You have been logged out.",
-    })
-    router.push("/login")
-  }
-
   // Permission check function
-  const can = (permission: string) => canCheck(state.user, permission);
+  const can = useCallback((permission: string) => canCheck(state.user, permission), [state.user]);
 
   // Role check function
-  const hasRole = (role: string | string[]) => hasRoleCheck(state.user, role);
-
-  // Don't render children until we've checked for an existing token
-  if (!initialized) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+  const hasRole = useCallback((role: string | string[]) => hasRoleCheck(state.user, role), [state.user]);
 
   // Refresh token function (stub implementation)
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     // In a real app, call your API to refresh the token and update state
     // For now, just dispatch REFRESH_TOKEN with the current token
     if (state.token) {
       dispatch({ type: "REFRESH_TOKEN", payload: { token: state.token } })
     }
-  }
+  }, [state.token, dispatch])
 
   // Clear error function
   const clearError = () => {
@@ -271,13 +198,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "UPDATE_ACTIVITY" })
   }
 
+  // Effect for session timeout and token refresh
+  useEffect(() => {
+    let activityTimer: NodeJS.Timeout | undefined;
+    let tokenRefreshInterval: NodeJS.Timeout | undefined;
+
+    const resetActivityTimer = () => {
+      if (activityTimer) clearTimeout(activityTimer);
+      activityTimer = setTimeout(() => {
+        if (state.isAuthenticated) {
+          dispatch({ type: "LOGOUT", payload: { reason: "Session timed out due to inactivity." } });
+          safeStorage.removeItem("wms_token");
+        }
+      }, AUTH_CONFIG.SESSION_TIMEOUT);
+    };
+
+    if (state.isAuthenticated) {
+      // Initialize and reset activity timer on activity
+      resetActivityTimer();
+      window.addEventListener("mousemove", resetActivityTimer);
+      window.addEventListener("keydown", resetActivityTimer);
+      window.addEventListener("click", resetActivityTimer);
+
+      // Set up token refresh interval
+      tokenRefreshInterval = setInterval(() => {
+        refreshToken();
+      }, AUTH_CONFIG.TOKEN_REFRESH_INTERVAL);
+    }
+
+    return () => {
+      if (activityTimer) clearTimeout(activityTimer);
+      if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+      window.removeEventListener("mousemove", resetActivityTimer);
+      window.removeEventListener("keydown", resetActivityTimer);
+      window.removeEventListener("click", resetActivityTimer);
+    };
+  }, [state.isAuthenticated, state.lastActivity, refreshToken]); // Re-run when authentication status or last activity changes
+
+    // Don't render children until we've checked for an existing token
+  if (!initialized) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
   return (
     <AuthContext.Provider
       value={{
         state,
-        login,
-        resetPassword,
-        logout,
+        dispatch,
         refreshToken,
         can,
         hasRole,
@@ -288,15 +259,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-// Custom hook to use the auth context
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
 }
 
 export { AuthContext, AUTH_CONFIG }

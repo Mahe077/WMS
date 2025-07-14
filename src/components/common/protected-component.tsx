@@ -1,7 +1,7 @@
 "use client"
 
+import { useAuth } from "@/features/auth/hooks/useAuth"
 import React from "react"
-import { useAuth } from "@/contexts/auth-context"
 
 interface ProtectedComponentProps {
   children: React.ReactNode

@@ -82,6 +82,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json({
       user: userWithoutPassword,
+      token: `mock-${user.role}-token`, // Mock token
       message: "Token is valid",
     })
   } catch (error) {

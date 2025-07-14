@@ -20,7 +20,7 @@ import {
   AlertTriangle,
   X,
 } from "lucide-react";
-import { BarcodeScannerActions, BarcodeScannerState } from "@/hooks/use-barcode-scanner";
+import { BarcodeScannerActions, BarcodeScannerState } from "@/features/receiving/hooks/use-barcode-scanner";
 
 export interface BarcodeScannerDialogProps {
   state: BarcodeScannerState;

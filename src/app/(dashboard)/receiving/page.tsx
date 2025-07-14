@@ -32,7 +32,7 @@ import { usePagination, useNotifications } from "@/contexts/app-context";
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
 import { BarcodeScannerDialog } from "@/components/common/barcode-scanner-dialog";
 import { useBarcodeScanner } from "@/features/receiving/hooks/use-barcode-scanner";
-import { usePdfReport } from "@/hooks/use-pdf-report";
+import { usePdfReport } from "@/features/reports/hooks/use-pdf-report";
 import { ProtectedRoute } from "@/components/common/protected-route";
 
 type ReceiptItem = {

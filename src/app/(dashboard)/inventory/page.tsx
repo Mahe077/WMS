@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import { AlertTriangle, Lock, Edit, Box, ChevronsDown } from "lucide-react";
 import {
   usePagination,
@@ -16,6 +16,7 @@ import { useFilteredData } from "@/hooks/use-filters";
 import { CustomTable, TableColumn } from "@/components/common/custom-table"
 import { ProtectedRoute } from "@/components/common/protected-route";
 import { FilterConfig, Stat } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
 
 export default function InventoryPage() {
   const { addNotification } = useNotifications();
@@ -240,23 +241,6 @@ const filterFunctions: Record<string, (item: InventoryItem, filterValue: unknown
     setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });
   };
 
-  const getStatusBadge = (status: string, holds: string[]) => {
-    if (holds.length > 0) {
-      return <Badge variant="destructive">On Hold</Badge>;
-    }
-    switch (status) {
-      case "Available":
-        return <Badge variant="default">Available</Badge>;
-      case "Low Stock":
-        return <Badge variant="secondary">Low Stock</Badge>;
-      case "Expiring Soon":
-        return <Badge variant="destructive">Expiring Soon</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-
   // Define table columns for mobile-friendly table
 const tableColumns: TableColumn<InventoryItem>[] = [
     {
@@ -282,7 +266,7 @@ const tableColumns: TableColumn<InventoryItem>[] = [
       key: "status",
       label: "Status",
       priority: "high",
-      render: (value, row: InventoryItem) => getStatusBadge(String(value), row.holds),
+      render: (value, row: InventoryItem) => <StatusBadge status={String(value)} type={row.holds.length > 0 ? "on hold" : undefined} />,
     },
     {
       key: "lotNumber",

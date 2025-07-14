@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserPlus, Shield, Edit } from "lucide-react"
+import { UserPlus, Shield } from "lucide-react"
 import { ProtectedRoute } from "@/components/common/protected-route"
+import { ViewSelector } from "@/components/common/view-selector";
 import { User } from "@/features/auth/types"
 import { UserView } from "@/features/user-management/components/users-view"
+import { RoleCard } from "@/components/common/role-card"
 
 export default function UserManagementPage() {
   const [selectedView, setSelectedView] = useState("users")
@@ -106,29 +108,15 @@ export default function UserManagementPage() {
         </div>
 
         {/* View Selector */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedView === "users" ? "default" : "outline"}
-            onClick={() => setSelectedView("users")}
-            size="sm"
-          >
-            Users
-          </Button>
-          <Button
-            variant={selectedView === "roles" ? "default" : "outline"}
-            onClick={() => setSelectedView("roles")}
-            size="sm"
-          >
-            Roles & Permissions
-          </Button>
-          <Button
-            variant={selectedView === "activity" ? "default" : "outline"}
-            onClick={() => setSelectedView("activity")}
-            size="sm"
-          >
-            Activity Log
-          </Button>
-        </div>
+        <ViewSelector
+          options={[
+            { label: "Users", value: "users" },
+            { label: "Roles & Permissions", value: "roles" },
+            { label: "Activity Log", value: "activity" },
+          ]}
+          selectedView={selectedView}
+          onSelectView={setSelectedView}
+        />
 
         {selectedView === "users" && (
           <UserView
@@ -198,25 +186,7 @@ export default function UserManagementPage() {
               <CardContent>
                 <div className="space-y-4">
                   {roles.map((role) => (
-                    <div key={role.id} className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <h4 className="font-medium">{role.name}</h4>
-                          <Badge variant="outline">{role.userCount} users</Badge>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{role.description}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {role.permissions.map((permission, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {permission}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                    <RoleCard key={role.id} role={role} onEdit={(id) => console.log(`Edit role: ${id}`)} />
                   ))}
                 </div>
               </CardContent>

@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { RefreshCw, Package, AlertTriangle, CheckCircle, Scan } from "lucide-react"
 import { CustomTable, TableColumn } from "@/components/common/custom-table"
 import { usePagination } from "@/contexts/app-context"
-import { ProtectedRoute } from "@/components/common/protected-route"
+import { ProtectedRoute } from "@/components/common/protected-route";
 import { Return } from "@/features/returns/types/return.types"
+import { QuickActionButton } from "@/components/common/quick-action-button"
 
 export default function ReturnsPage() {
   const [scanMode, setScanMode] = useState(false)
@@ -338,18 +339,21 @@ export default function ReturnsPage() {
               <div className="pt-4 border-t">
                 <h4 className="font-medium mb-2">Quick Actions</h4>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <Package className="h-4 w-4 mr-2" />
-                    Bulk Process Returns
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                    Review Quarantine Items
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Generate Disposal Report
-                  </Button>
+                  <QuickActionButton
+                    label="Bulk Process Returns"
+                    icon={Package}
+                    onClick={() => console.log("Bulk Process Returns")}
+                  />
+                  <QuickActionButton
+                    label="Review Quarantine Items"
+                    icon={AlertTriangle}
+                    onClick={() => console.log("Review Quarantine Items")}
+                  />
+                  <QuickActionButton
+                    label="Generate Disposal Report"
+                    icon={RefreshCw}
+                    onClick={() => console.log("Generate Disposal Report")}
+                  />
                 </div>
               </div>
             </CardContent>

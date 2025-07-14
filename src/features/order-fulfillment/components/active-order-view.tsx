@@ -1,9 +1,11 @@
+import React from "react";
+
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
 import { StatCard } from "@/components/ui/stat-card";
 import { useNotifications, usePagination } from "@/contexts/app-context";
 import { Stat } from "@/lib/types";
 import { CircleCheckBig, FileText, RefreshCcw, Truck } from "lucide-react";
-import React from "react";
+import { StatusBadge } from "@/components/common/status-badge";
 import { Order } from "../types/order.types";
 
 const stats: Stat[] = [
@@ -45,23 +47,19 @@ interface ActiveOrderViewProps {
   selectedWarehouse: string;
   warehouses: { id: string; name: string }[];
   orders: Order[];
-  getStatusBadge: (status: string) => React.ReactNode;
-  getPriorityBadge: (priority: string) => React.ReactNode;
 }
 
 export function ActiveOrderView({
   selectedWarehouse,
   warehouses,
   orders,
-  getStatusBadge,
-  getPriorityBadge,
 }: ActiveOrderViewProps) {
   const { addNotification } = useNotifications();
   const tableColumns: TableColumn<Order>[] = [
     { key: "id", label: "Order ID", priority: "high" },
     { key: "customerId", label: "Customer", priority: "high" },
-    { key: "priority", label: "Priority", priority: "high", render: (value) => getPriorityBadge(String(value)) },
-    { key: "status", label: "Status", priority: "high", render: (value) => getStatusBadge(String(value)) },
+    { key: "priority", label: "Priority", priority: "high", render: (value) => <StatusBadge status={String(value)} /> },
+    { key: "status", label: "Status", priority: "high", render: (value) => <StatusBadge status={String(value)} /> },
     { key: "items", label: "Items", priority: "high" },
     { key: "dueDate", label: "Due Date", priority: "medium" },
     { key: "carrier", label: "Carrier", priority: "medium" },

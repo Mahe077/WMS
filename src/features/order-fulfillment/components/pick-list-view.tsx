@@ -1,6 +1,6 @@
 // import { useState } from "react";
 import { CustomTable, TableColumn } from "@/components/common/custom-table";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,9 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
   FileText,
   Package,
   Search,
@@ -100,34 +97,7 @@ export function PickListView({
       key: "status",
       label: "Status",
       priority: "high",
-      render: (value) => {
-        const status = value as string;
-        switch (status) {
-          case "Completed":
-            return (
-              <Badge variant="default">
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Complete
-              </Badge>
-            );
-          case "Partial":
-            return (
-              <Badge variant="secondary">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Partial
-              </Badge>
-            );
-          case "Pending":
-            return (
-              <Badge variant="outline">
-                <Clock className="h-3 w-3 mr-1" />
-                Pending
-              </Badge>
-            );
-          default:
-            return <Badge variant="outline">{status}</Badge>;
-        }
-      },
+      render: (value) => <StatusBadge status={String(value)} />,
     },
   ];
 

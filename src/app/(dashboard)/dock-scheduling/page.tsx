@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useMemo } from "react"
-import { Badge } from "@/components/ui/badge"
+import { StatusBadge } from "@/components/common/status-badge";
 import { useNotifications } from "@/contexts/app-context"
 import { useMobile } from "@/hooks/use-mobile"
 import { DockBookingCategory, DockBookingPriority, DockStatus, DockType, TemperatureControl, VehicleType } from "@/lib/enum"
@@ -190,17 +190,6 @@ export default function DockSchedulingPage() {
     return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`
   }
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      scheduled: "secondary",
-      arrived: "default",
-      loading: "default",
-      completed: "default",
-      "no-show": "destructive",
-      delayed: "destructive",
-    }
-    return <Badge variant={variants[status as keyof typeof variants] as "default" | "secondary" | "destructive"}>{status}</Badge>
-  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -352,7 +341,7 @@ export default function DockSchedulingPage() {
           handleDeleteBooking={handleDeleteBooking}
           handleSlotClick={handleSlotClick}
           getBookingAtTime={getBookingAtTime}
-          getStatusBadge={getStatusBadge}
+          getStatusBadge={(status: string) => <StatusBadge status={status} />}
           getPriorityColor={getPriorityColor}
           getDockUtilization={getDockUtilization}
           setSelectedTimeSlot={setSelectedTimeSlot}
@@ -381,7 +370,7 @@ export default function DockSchedulingPage() {
           handleDeleteBooking={handleDeleteBooking}
           handleSlotClick={handleSlotClick}
           getBookingAtTime={getBookingAtTime}
-          getStatusBadge={getStatusBadge}
+          getStatusBadge={(status: string) => <StatusBadge status={status} />}
           getPriorityColor={getPriorityColor}
           getDockUtilization={getDockUtilization}
           setSelectedTimeSlot={setSelectedTimeSlot}

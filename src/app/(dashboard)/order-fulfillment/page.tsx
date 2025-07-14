@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { ViewSelector } from "@/components/common/view-selector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FileText, Package, AlertCircle} from "lucide-react"
 import { ProtectedRoute } from "@/components/common/protected-route"
@@ -91,34 +91,6 @@ export default function OrderFulfillmentPage() {
     },
   ]
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return <Badge variant="secondary">Pending</Badge>
-      case "Picking":
-        return <Badge variant="default">Picking</Badge>
-      case "Packed":
-        return <Badge variant="outline">Packed</Badge>
-      case "Shipped":
-        return <Badge variant="default">Shipped</Badge>
-      default:
-        return <Badge variant="outline">{status}</Badge>
-    }
-  }
-
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return <Badge variant="destructive">High</Badge>
-      case "Medium":
-        return <Badge variant="secondary">Medium</Badge>
-      case "Low":
-        return <Badge variant="outline">Low</Badge>
-      default:
-        return <Badge variant="outline">{priority}</Badge>
-    }
-  }
-
   return (
     <ProtectedRoute requiredPermission="order-fulfillment.view">
       <div className="space-y-6">
@@ -151,32 +123,18 @@ export default function OrderFulfillmentPage() {
         </div>
 
         {/* View Selector */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedView === "orders" ? "default" : "outline"}
-            onClick={() => setSelectedView("orders")}
-            size="sm"
-          >
-            Active Orders
-          </Button>
-          <Button
-            variant={selectedView === "picking" ? "default" : "outline"}
-            onClick={() => setSelectedView("picking")}
-            size="sm"
-          >
-            Pick Lists
-          </Button>
-          <Button
-            variant={selectedView === "packing" ? "default" : "outline"}
-            onClick={() => setSelectedView("packing")}
-            size="sm"
-          >
-            Packing
-          </Button>
-        </div>
+        <ViewSelector
+          options={[
+            { label: "Active Orders", value: "orders" },
+            { label: "Pick Lists", value: "picking" },
+            { label: "Packing", value: "packing" },
+          ]}
+          selectedView={selectedView}
+          onSelectView={setSelectedView}
+        />
 
         {selectedView === "orders" && (
-          <ActiveOrderView selectedWarehouse={selectedWarehouse} warehouses={warehouses} orders={orders} getStatusBadge={getStatusBadge} getPriorityBadge={getPriorityBadge}  />
+          <ActiveOrderView selectedWarehouse={selectedWarehouse} warehouses={warehouses} orders={orders} />
         )}
 
         {selectedView === "picking" && (
@@ -184,8 +142,6 @@ export default function OrderFulfillmentPage() {
             pickListData={pickList}
             selectedWarehouse={selectedWarehouse}
             warehouses={warehouses}
-            getStatusBadge={getStatusBadge}
-            getPriorityBadge={getPriorityBadge}
           />
         )}
 

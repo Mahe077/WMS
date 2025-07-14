@@ -2,13 +2,12 @@
 
 import { ProtectedRoute } from "@/components/common/protected-route";
 import { StatCard } from "@/components/ui/stat-card";
+import { ProtectedComponent } from "@/components/common/protected-component";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+
 import { useNotifications } from "@/contexts/app-context";
-import {
-  ProtectedComponent,
-} from "@/components/common/protected-component";
+import { QuickActionButton } from "@/components/common/quick-action-button";
 import {
   Package,
   Warehouse,
@@ -35,6 +34,7 @@ import {
 } from "recharts";
 import { useBarcodeScanner } from "@/features/receiving/hooks/use-barcode-scanner";
 import { useMobile } from "@/hooks/use-mobile";
+import { ActivityItem } from "@/components/common/activity-item";
 import { AlertType } from "@/lib/enum";
 // import { Alert } from "@/lib/types"
 
@@ -230,26 +230,12 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {alerts.map((alert, index) => (
-                <div
+                <ActivityItem
                   key={index}
-                  className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50"
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                      alert.type === "error"
-                        ? "bg-red-500"
-                        : alert.type === "warning"
-                        ? "bg-orange-500"
-                        : "bg-blue-500"
-                    }`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium break-words">
-                      {alert.message}
-                    </p>
-                    <p className="text-xs text-gray-500">{alert.time}</p>
-                  </div>
-                </div>
+                  message={alert.message}
+                  time={alert.time}
+                  type={alert.type}
+                />
               ))}
             </CardContent>
           </Card>
@@ -262,47 +248,39 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <ProtectedComponent requiredPermission="view:receiving">
-                <Button
-                  className="w-full justify-start"
-                  variant="outline"
+                <QuickActionButton
+                  label="Process New Receipt"
+                  icon={Package}
                   onClick={() => handleQuickAction("New Receipt Processing")}
-                >
-                  <Package className="h-4 w-4 mr-2" />
-                  Process New Receipt
-                </Button>
+                  permission="view:receiving"
+                />
               </ProtectedComponent>
 
               <ProtectedComponent requiredPermission="view:orders">
-                <Button
-                  className="w-full justify-start"
-                  variant="outline"
+                <QuickActionButton
+                  label="Create Pick List"
+                  icon={FileText}
                   onClick={() => handleQuickAction("Pick List Creation")}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Create Pick List
-                </Button>
+                  permission="view:orders"
+                />
               </ProtectedComponent>
 
               <ProtectedComponent requiredPermission="view:dispatch">
-                <Button
-                  className="w-full justify-start"
-                  variant="outline"
+                <QuickActionButton
+                  label="Schedule Dispatch"
+                  icon={Truck}
                   onClick={() => handleQuickAction("Dispatch Scheduling")}
-                >
-                  <Truck className="h-4 w-4 mr-2" />
-                  Schedule Dispatch
-                </Button>
+                  permission="view:dispatch"
+                />
               </ProtectedComponent>
 
               <ProtectedComponent requiredPermission="view:reports">
-                <Button
-                  className="w-full justify-start"
-                  variant="outline"
+                <QuickActionButton
+                  label="Generate Report"
+                  icon={BarChart3}
                   onClick={() => handleQuickAction("Report Generation")}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Generate Report
-                </Button>
+                  permission="view:reports"
+                />
               </ProtectedComponent>
             </CardContent>
           </Card>

@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import { DockBookingCategory, DockStatus } from "@/lib/enum";
 import { useNotifications, usePagination } from "@/contexts/app-context";
 import { ProtectedRoute } from "@/components/common/protected-route";
 import { DockBooking } from "@/features/dock-scheduling/types/dock.types";
+import { Badge } from "@/components/ui/badge";
 
 export default function DispatchPage() {
   const { addNotification } = useNotifications();
@@ -142,38 +143,6 @@ export default function DispatchPage() {
     setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });
   };
 
-  const getDockStatusBadge = (status: string) => {
-    switch (status) {
-      case "Available":
-        return <Badge variant="default">Available</Badge>;
-      case "Occupied":
-        return <Badge variant="secondary">Occupied</Badge>;
-      case "Scheduled":
-        return <Badge variant="outline">Scheduled</Badge>;
-      case "Loading":
-        return <Badge variant="destructive">Loading</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
-  const getShipmentStatusBadge = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return <Badge variant="default">Pending</Badge>;
-      case "Scheduled":
-        return <Badge variant="outline">Scheduled</Badge>;
-      case "Completed":
-        return <Badge variant="success">Completed</Badge>;
-      case "Loading":
-        return <Badge variant="destructive">Loading</Badge>;
-      case "Delayed":
-        return <Badge variant="secondary">Delayed</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   const tableColumns: TableColumn<DockBooking>[] = [
     {
       key: "id",
@@ -214,7 +183,7 @@ export default function DispatchPage() {
       key: "status",
       label: "Status",
       priority: "high",
-      render: (value) => getShipmentStatusBadge(String(value)),
+      render: (value) => <StatusBadge status={String(value)} />,
     },
   ];
 
@@ -280,7 +249,7 @@ export default function DispatchPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium flex items-center justify-between">
                   {dock.id}
-                  {getDockStatusBadge(dock.status)}
+                  <StatusBadge status={dock.status} />
                 </CardTitle>
               </CardHeader>
               <CardContent>

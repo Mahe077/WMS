@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { BarChart3, FileText, Calendar, TrendingUp, AlertTriangle } from "lucide-react"
-import { ReportStatus } from "@/lib/enum"
+import { BarChart3, FileText, Calendar, AlertTriangle } from "lucide-react"
+import { ActivityItem } from "@/components/common/activity-item";
+import { KpiCard } from "@/components/common/kpi-card";
+import { ViewSelector } from "@/components/common/view-selector";
 import { ProtectedRoute } from "@/components/common/protected-route"
 import { Report } from "@/features/reports/types/report.types"
 import { ReportsHistoryView } from "@/features/reports/components/reports-history-view"
+import { ReportStatus } from "@/lib/enum"
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState("today")
@@ -105,54 +108,29 @@ export default function ReportsPage() {
         </div>
 
         {/* View Selector */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedView === "dashboard" ? "default" : "outline"}
-            onClick={() => setSelectedView("dashboard")}
-            size="sm"
-          >
-            Dashboard
-          </Button>
-          <Button
-            variant={selectedView === "generate" ? "default" : "outline"}
-            onClick={() => setSelectedView("generate")}
-            size="sm"
-          >
-            Generate Reports
-          </Button>
-          <Button
-            variant={selectedView === "history" ? "default" : "outline"}
-            onClick={() => setSelectedView("history")}
-            size="sm"
-          >
-            Report History
-          </Button>
-          <Button
-            variant={selectedView === "analytics" ? "default" : "outline"}
-            onClick={() => setSelectedView("analytics")}
-            size="sm"
-          >
-            Analytics
-          </Button>
-        </div>
+        <ViewSelector
+          options={[
+            { label: "Dashboard", value: "dashboard" },
+            { label: "Generate Reports", value: "generate" },
+            { label: "Report History", value: "history" },
+            { label: "Analytics", value: "analytics" },
+          ]}
+          selectedView={selectedView}
+          onSelectView={setSelectedView}
+        />
 
         {selectedView === "dashboard" && (
           <>
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {kpiData.map((kpi, index) => (
-                <Card key={index}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">{kpi.metric}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{kpi.value}</div>
-                    <p className={`text-xs flex items-center ${kpi.trend === "up" ? "text-green-600" : "text-red-600"}`}>
-                      <TrendingUp className={`h-3 w-3 mr-1 ${kpi.trend === "down" ? "rotate-180" : ""}`} />
-                      {kpi.change} from last period
-                    </p>
-                  </CardContent>
-                </Card>
+                <KpiCard
+                  key={index}
+                  metric={kpi.metric}
+                  value={kpi.value}
+                  change={kpi.change}
+                  trend={kpi.trend as "up" | "down" | "neutral"}
+                />
               ))}
             </div>
 
@@ -197,27 +175,21 @@ export default function ReportsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="p-3 border rounded-lg bg-red-50">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span className="text-sm font-medium">Critical: 2 items</span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">Expired products in active inventory</p>
-                  </div>
-                  <div className="p-3 border rounded-lg bg-orange-50">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm font-medium">Warning: 15 items</span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">Low stock alerts requiring attention</p>
-                  </div>
-                  <div className="p-3 border rounded-lg bg-blue-50">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm font-medium">Info: 8 items</span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-1">New ASNs received today</p>
-                  </div>
+                  <ActivityItem
+                    type="error"
+                    message="Critical: 2 items"
+                    secondaryDetail="Expired products in active inventory"
+                  />
+                  <ActivityItem
+                    type="warning"
+                    message="Warning: 15 items"
+                    secondaryDetail="Low stock alerts requiring attention"
+                  />
+                  <ActivityItem
+                    type="info"
+                    message="Info: 8 items"
+                    secondaryDetail="New ASNs received today"
+                  />
                 </CardContent>
               </Card>
             </div>

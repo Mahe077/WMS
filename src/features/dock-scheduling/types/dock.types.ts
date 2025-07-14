@@ -34,7 +34,7 @@ export type DockBooking = {
   status: DockStatus //if the docks can be different types, otherwise null
   eta?: string //estimated time of arrival
   priority?: DockBookingPriority//priority of the
-  estimatedPallets?: number //estimated number of pallets for the booking
+  estimatedPallets: number //estimated number of pallets for the booking
   contactPerson?: string //contact person for the booking
   phoneNumber?: string //phone number for the contact person
 }

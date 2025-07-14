@@ -10,8 +10,9 @@ import { DockBookingCategory, DockBookingPriority, DockStatus, TemperatureContro
 import React, { useEffect, useState } from "react"
 import { useNotifications } from "@/contexts/app-context"
 import { FormDialog } from "@/components/common/form-dialog"
-import { CheckCircle } from "lucide-react"
+import { FormError } from "@/components/common/form-error";
 import { Selector } from "@/components/ui/selector"
+import { CheckCircle } from "lucide-react"
 
 interface DesktopBookingFormModalProps {
   existingBooking?: DockBooking | null
@@ -21,6 +22,23 @@ interface DesktopBookingFormModalProps {
   onCancel: () => void
   dock?: Dock
   timeSlot?: string
+}
+
+interface FormErrors {
+  dockId?: string
+  startTime?: string
+  carrier?: string
+  bookingRef?: string
+  duration?: string
+  poNumber?: string
+  shipmentId?: string
+  vehicleType?: string
+  temperatureControl?: string
+  estimatedPallets?: string
+  truck?: string
+  driver?: string
+  contactPerson?: string
+  phoneNumber?: string
 }
 
 export function DesktopBookingFormModal({
@@ -60,6 +78,30 @@ export function DesktopBookingFormModal({
     }
   )
 
+  const [errors, setErrors] = useState<FormErrors>({})
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
+
+    if (!formData.dockId) newErrors.dockId = "Dock is required."
+    if (!formData.startTime) newErrors.startTime = "Start time is required."
+    if (!formData.carrier) newErrors.carrier = "Carrier is required."
+    if (!formData.bookingRef) newErrors.bookingRef = "Booking reference is required."
+    if (formData.activity === DockBookingCategory.Receiving) {
+      if (!formData.poNumber) newErrors.poNumber = "PO Number is required for receiving activity."
+      if (!formData.shipmentId) newErrors.shipmentId = "Shipment ID is required for receiving activity."
+    }
+    if (formData.estimatedPallets < 1) newErrors.estimatedPallets = "Estimated pallets cannot be negative."
+    if (!formData.truck) newErrors.truck = "Truck number is required."
+    if (!formData.driver) newErrors.driver = "Driver name is required."
+    if (!formData.contactPerson) newErrors.contactPerson = "Contact person is required."
+    if (!formData.phoneNumber) newErrors.phoneNumber = "Phone number is required."
+
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   useEffect(() => {
     if (existingBooking) {
       setFormData(existingBooking)
@@ -76,6 +118,9 @@ export function DesktopBookingFormModal({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target
     setFormData((prev) => ({ ...prev, [id]: value }))
+    if (errors[id as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [id]: undefined }))
+    }
   }
 
   const handleSelectChange = (id: keyof DockBooking, value: string) => {
@@ -84,11 +129,10 @@ export function DesktopBookingFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!formData.dockId || !formData.startTime || !formData.carrier || !formData.bookingRef) {
+    if (!validateForm()) {
       addNotification({
         type: "error",
-        message: "Please fill in all required fields (Dock, Time, Carrier, Booking Ref).",
+        message: "Please fix the errors before submitting.",
       })
       return
     }
@@ -104,7 +148,18 @@ export function DesktopBookingFormModal({
       return
     }
 
-    onSubmit(formData)
+    try {
+      onSubmit(formData)
+      setErrors({}) // Clear errors on successful submission
+    }
+    catch (error) {
+      addNotification({
+        type: "error",
+        message: "Failed to submit booking. Please try again.",
+      })
+      console.error("Booking submission error:", error)
+      return
+    }
   }
 
   const timeToMinutes = (time: string) => {
@@ -140,6 +195,7 @@ export function DesktopBookingFormModal({
               onChange={(value) => handleSelectChange("dockId", value)}
               widthClass="w-full"
             />
+            <FormError message={errors.dockId} />
           </div>
 
 
@@ -164,10 +220,10 @@ export function DesktopBookingFormModal({
               }))}
               value={formData.startTime}
               onChange={(value) =>
-                handleSelectChange('startTime', value )
+                handleSelectChange('startTime', value)
               }
               widthClass="w-full"
-              />
+            />
           </div>
 
           <div className="space-y-2">
@@ -181,15 +237,17 @@ export function DesktopBookingFormModal({
               onChange={handleChange}
               className="col-span-3"
               min="15"
-              step="15"
+              step="15" 
             />
+            <FormError message={errors.duration} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="carrier" >
               Carrier
             </Label>
-            <Input id="carrier" value={formData.carrier} onChange={handleChange} className="col-span-3" />
+            <Input id="carrier" value={formData.carrier} placeholder="DHL" onChange={handleChange} className="col-span-3" />
+            <FormError message={errors.carrier} />
           </div>
 
           <div className="space-y-2">
@@ -211,19 +269,21 @@ export function DesktopBookingFormModal({
 
           {formData.activity === DockBookingCategory.Receiving && (
             <React.Fragment>
-            <div className="space-y-2">
-              <Label htmlFor="poNumber" >
-                PO Number
-              </Label>
-              <Input id="poNumber" value={formData.poNumber} onChange={handleChange} className="col-span-3" />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="poNumber" >
+                  PO Number
+                </Label>
+                <Input id="poNumber" value={formData.poNumber} placeholder="PO123456" onChange={handleChange} className="col-span-3" />
+                <FormError message={errors.poNumber} />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="shipmentID" >
-                Shipment ID
-              </Label>
-              <Input id="shipmentID" value={formData.shipmentId} onChange={handleChange} className="col-span-3" />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="shipmentID" >
+                  Shipment ID
+                </Label>
+                <Input id="shipmentID" value={formData.shipmentId} placeholder="SHIP123456" onChange={handleChange} className="col-span-3" />
+                <FormError message={errors.shipmentId} />
+              </div>
             </React.Fragment>
           )}
 
@@ -294,8 +354,8 @@ export function DesktopBookingFormModal({
               value={formData.estimatedPallets}
               onChange={handleChange}
               className="col-span-3"
-              min="1"
             />
+            <FormError message={errors.estimatedPallets} />
           </div>
 
           <div className="space-y-2">
@@ -303,6 +363,7 @@ export function DesktopBookingFormModal({
               Truck Number
             </Label>
             <Input id="truckNumber" value={formData.truck} onChange={handleChange} className="col-span-3" />
+            <FormError message={errors.truck} />
           </div>
 
           <div className="space-y-2">
@@ -310,6 +371,7 @@ export function DesktopBookingFormModal({
               Driver Name
             </Label>
             <Input id="driver" value={formData.driver} onChange={handleChange} className="col-span-3" />
+            <FormError message={errors.driver} />
           </div>
 
           <div className="space-y-2">
@@ -317,6 +379,7 @@ export function DesktopBookingFormModal({
               Contact Person
             </Label>
             <Input id="contactPerson" value={formData.contactPerson} onChange={handleChange} className="col-span-3" />
+            <FormError message={errors.contactPerson} />
           </div>
 
           <div className="space-y-2">
@@ -324,6 +387,7 @@ export function DesktopBookingFormModal({
               Phone Number
             </Label>
             <Input id="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="col-span-3" />
+            <FormError message={errors.phoneNumber} />
           </div>
         </div>
         <div className="space-y-2">

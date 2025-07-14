@@ -11,7 +11,6 @@ export type User = {
   customFields?: Record<string, unknown> // optional, for any additional user-specific data
 }
 
-
 export type Auth = {
   user: User
   token: string
@@ -37,4 +36,57 @@ export type ValidateTokenResponse = {
 
 export type LogoutResponse = {
   message: string
+}
+
+export type Permission = {
+  id: string
+  name: string
+  description: string
+}
+
+export type Role = {
+  id: string
+  name: string
+  description: string
+  permissions: Permission[]
+}
+
+export type UserProfile = {
+  id: string
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  roles: string[]
+  permissions: string[]
+  lastLogin: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type UserPreferences = {
+  theme: 'light' | 'dark' | 'system'
+  notifications: {
+    email: boolean
+    sms: boolean
+    push: boolean
+  }
+  dashboardLayout: unknown; // Consider a more specific type
+}
+
+export type AuditLog = {
+  id: string
+  userId: string
+  action: string
+  timestamp: Date
+  details: unknown; // Consider a more specific type
+}
+
+export type SessionInfo = {
+  sessionId: string
+  userId: string
+  loginTime: Date
+  lastActivity: Date
+  ipAddress: string
+  userAgent: string
 }

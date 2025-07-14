@@ -1,6 +1,8 @@
 import React from "react";
 import { render, act, waitFor } from "@testing-library/react";
-import { AuthProvider, AuthContextType } from "./auth-context";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { User } from "@/features/auth/types";
+import { AuthContextType, AuthProvider } from "@/providers/auth-provider";
 
 // Mocks
 const mockPush = jest.fn();
@@ -48,9 +50,6 @@ const localStorageMock = (() => {
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
-
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { User } from "@/features/auth/types";
 
 function TestComponent() {
   const ctx = useAuth();

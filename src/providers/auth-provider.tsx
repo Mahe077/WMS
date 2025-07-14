@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useReducer, useEffect, useState, type ReactNode, useCallback } from "react"
+import { createContext, useReducer, useEffect, useState, useCallback, type ReactNode } from "react"
 import { validateTokenApi } from "@/features/auth/api";
 import { can as canCheck, hasRole as hasRoleCheck } from "@/lib/auth/permissions";
 import { User } from "@/features/auth/types";
@@ -83,13 +83,13 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         lastActivity: Date.now(),
       }
     case "AUTH_FAILURE":
-      return { 
-        ...state, 
-        isLoading: false, 
-        isAuthenticated: false, 
-        user: null, 
+      return {
+        ...state,
+        isLoading: false,
+        isAuthenticated: false,
+        user: null,
         token: null,
-        error: action.payload.error 
+        error: action.payload.error
       }
     case "PASSWORD_RESET_SUCCESS":
       return {
@@ -104,9 +104,9 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         error: action.payload.error,
       }
     case "LOGOUT":
-      return { 
+      return {
         ...initialState,
-        error: action.payload?.reason ? `Logged out: ${action.payload.reason}` : null 
+        error: action.payload?.reason ? `Logged out: ${action.payload.reason}` : null
       }
     case "REFRESH_TOKEN":
       return { ...state, token: action.payload.token, lastActivity: Date.now() }
@@ -140,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check for existing token on mount
   useEffect(() => {
     const checkAuth = async () => {
+      dispatch({ type: "AUTH_START" });
       const token = safeStorage.getItem("wms_token")
       if (token) {
         try {
@@ -159,18 +160,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             payload: { error: "Invalid or expired token" },
           })
         }
+      } else {
+        // No token found, so authentication fails immediately
+        dispatch({
+          type: "AUTH_FAILURE",
+          payload: { error: "No authentication token found" },
+        });
       }
-      setInitialized(true)
+      setInitialized(true);
     }
 
     checkAuth()
   }, [])
 
   // Permission check function
-  const can = (permission: string) => canCheck(state.user, permission);
+  const can = useCallback((permission: string) => canCheck(state.user, permission), [state.user]);
 
   // Role check function
-  const hasRole = (role: string | string[]) => hasRoleCheck(state.user, role);
+  const hasRole = useCallback((role: string | string[]) => hasRoleCheck(state.user, role), [state.user]);
 
   // Refresh token function (stub implementation)
   const refreshToken = useCallback(async () => {
@@ -228,7 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [state.isAuthenticated, state.lastActivity, refreshToken]); // Re-run when authentication status or last activity changes
 
-  // Don't render children until we've checked for an existing token
+    // Don't render children until we've checked for an existing token
   if (!initialized) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -236,8 +243,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       </div>
     )
   }
-
-  
 
   return (
     <AuthContext.Provider

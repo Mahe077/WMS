@@ -1,16 +1,8 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useReducer, useEffect, useCallback, type ReactNode } from "react"
 
-// Types
-interface User {
-  id: string
-  name: string
-  email: string
-  role: string
-  permissions: string[]
-}
 
 interface PaginationState {
   currentPage: number
@@ -20,7 +12,6 @@ interface PaginationState {
 }
 
 interface AppState {
-  user: User | null
   activeModule: string
   sidebarOpen: boolean
   loading: boolean
@@ -38,7 +29,6 @@ interface Notification {
 }
 
 type AppAction =
-  | { type: "SET_USER"; payload: User | null }
   | { type: "SET_ACTIVE_MODULE"; payload: string }
   | { type: "TOGGLE_SIDEBAR" }
   | { type: "SET_SIDEBAR_OPEN"; payload: boolean }
@@ -51,14 +41,7 @@ type AppAction =
   | { type: "CLEAR_FILTERS"; payload: string }
 
 const initialState: AppState = {
-  user: {
-    id: "USR-001",
-    name: "John Doe",
-    email: "john.doe@company.com",
-    role: "Admin",
-    permissions: ["all"],
-  },
-  activeModule: "dashboard",
+  activeModule: "",
   sidebarOpen: false,
   loading: false,
   notifications: [],
@@ -76,7 +59,7 @@ const getInitialState = (): AppState => {
         const parsed = JSON.parse(savedState)
         return {
           ...initialState,
-          activeModule: parsed.activeModule || "dashboard",
+          activeModule: parsed.activeModule,
           sidebarOpen: false, // Always start with sidebar closed on refresh
           pagination: parsed.pagination || {},
           filters: parsed.filters || {},
@@ -92,8 +75,6 @@ const getInitialState = (): AppState => {
 
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
-    case "SET_USER":
-      return { ...state, user: action.payload }
     case "SET_ACTIVE_MODULE":
       return { ...state, activeModule: action.payload }
     case "TOGGLE_SIDEBAR":
@@ -196,18 +177,22 @@ export function useApp() {
 export function useNotifications() {
   const { state, dispatch } = useApp()
 
-  const addNotification = (notification: Omit<Notification, "id" | "timestamp">) => {
-    dispatch({ type: "ADD_NOTIFICATION", payload: notification })
+  const addNotification = useCallback((notification: Omit<Notification, "id" | "timestamp">) => {
+    const newId = Date.now().toString();
+    dispatch({ 
+      type: "ADD_NOTIFICATION", 
+      payload: notification 
+    });
 
     // Auto-remove after 5 seconds
     setTimeout(() => {
-      dispatch({ type: "REMOVE_NOTIFICATION", payload: Date.now().toString() })
-    }, 5000)
-  }
+      dispatch({ type: "REMOVE_NOTIFICATION", payload: newId });
+    }, 5000);
+  }, [dispatch]);
 
-  const removeNotification = (id: string) => {
+  const removeNotification = useCallback((id: string) => {
     dispatch({ type: "REMOVE_NOTIFICATION", payload: id })
-  }
+  }, [dispatch]);
 
   return {
     notifications: state.notifications,

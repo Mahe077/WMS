@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/contexts/auth-context";
+import { AuthContext } from "@/providers/auth-provider";
 import { useNotifications } from "@/contexts/app-context";
 import { loginApi, resetPasswordApi, forgotPasswordApi, logoutApi } from "@/features/auth/api";
+import { findFirstAllowedModule } from "@/lib/auth/permissions";
 
 export function useAuth() {
     const context = useContext(AuthContext);
@@ -30,7 +31,7 @@ export function useAuth() {
                 message: `Welcome back, ${user.name}!`,
             });
 
-            router.push("/");
+            router.push(findFirstAllowedModule(user));
         } catch (error) {
             dispatch({ 
                 type: "AUTH_FAILURE", 

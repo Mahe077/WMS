@@ -22,7 +22,7 @@ export function NotificationToast() {
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {notifications.map((notification) => {
+      {notifications.map((notification, index) => {
         const Icon = {
           success: CheckCircle,
           error: AlertCircle,
@@ -46,7 +46,7 @@ export function NotificationToast() {
 
         return (
           <div
-            key={notification.id}
+            key={`${notification.id}-${index}`}
             className={`flex items-center gap-3 p-4 rounded-lg border shadow-lg max-w-sm ${bgColor}`}
           >
             <Icon className={`h-5 w-5 ${iconColor}`} />

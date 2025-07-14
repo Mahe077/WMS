@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { AppProvider } from "@/contexts/app-context"
-import { AuthProvider } from "@/contexts/auth-context"
+import { AuthProvider } from "@/providers/auth-provider"
 
 import { NotificationToast } from "@/components/common/notification-toast";
 

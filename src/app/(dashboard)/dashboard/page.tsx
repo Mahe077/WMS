@@ -33,7 +33,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useBarcodeScanner } from "@/hooks/use-barcode-scanner";
+import { useBarcodeScanner } from "@/features/receiving/hooks/use-barcode-scanner";
 import { useMobile } from "@/hooks/use-mobile";
 import { AlertType } from "@/lib/enum";
 // import { Alert } from "@/lib/types"

@@ -11,13 +11,13 @@
 // ├── constants.ts                # Time slots, vehicle durations, static maps
 // ├── index.ts                    # Central export hub
 
-export * from './dock.types';
-export * from './order.types';
-export * from './inventory.types';
 export * from './customer.types';
-
 export * from './filters.types';
-export * from './report.types';
-export * from './return.types';
 export * from './shared.types';
 export * from './constants';
+export * from '@/features/dock-scheduling/types/dock.types';
+export * from '@/features/inventory/types/inventory.types';
+export * from '@/features/order-fulfillment/types/order.types';
+export * from '@/features/reports/types/report.types';
+export * from '@/features/returns/types/return.types';
+export * from '@/features/auth/types/index';

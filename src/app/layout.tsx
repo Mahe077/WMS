@@ -5,7 +5,6 @@ import "./globals.css";
 import { AppProvider } from "@/contexts/app-context"
 import { AuthProvider } from "@/providers/auth-provider"
 
-import { NotificationToast } from "@/components/common/notification-toast";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -25,8 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppProvider>
-          <AuthProvider>{children}</AuthProvider>
-          <NotificationToast />
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </AppProvider>
       </body>
     </html>

@@ -1,6 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useCallback, useMemo, useState } from "react"
+
+const navigationItems = [
+  { id: "dashboard", label: "Dashboard", icon: BarChart3, permission: "dashboard.view", href: "/dashboard" },
+  { id: "receiving", label: "Receiving", icon: Package, permission: "receiving.view", href: "/receiving" },
+  { id: "inventory", label: "Inventory", icon: Warehouse, permission: "inventory.view", href: "/inventory" },
+  { id: "dock-scheduling", label: "Dock Scheduling", icon: Truck, permission: "dock-scheduling.view", href: "/dock-scheduling" },
+  { id: "orders", label: "Orders", icon: FileText, permission: "order-fulfillment.view", href: "/order-fulfillment" },
+  { id: "dispatch", label: "Dispatch", icon: Truck, permission: "dispatch.view", href: "/dispatch" },
+  { id: "returns", label: "Returns", icon: RefreshCw, permission: "returns.view", href: "/returns" },
+  { id: "reports", label: "Reports", icon: BarChart3, permission: "reports.view", href: "/reports" },
+  { id: "users", label: "Users", icon: Users, permission: "user-management.view", role: ["admin", "manager"], href: "/user-management" },
+  { id: "loading-demo", label: "Loading Demo", icon: Clock, permission: null, href: "/loading-demo" }, // For demo purposes
+]
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -31,6 +44,7 @@ import { LogoutConfirmDialog } from "@/components/common/logout-confirm-dialog"
 import { ProtectedRoute } from "@/components/common/protected-route"
 
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { state, dispatch } = useApp()
@@ -42,28 +56,60 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false)
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
-  const navigationItems = [
-    { id: "dashboard", label: "Dashboard", icon: BarChart3, permission: "dashboard.view", href: "/dashboard" },
-    { id: "receiving", label: "Receiving", icon: Package, permission: "receiving.view", href: "/receiving" },
-    { id: "inventory", label: "Inventory", icon: Warehouse, permission: "inventory.view", href: "/inventory" },
-    { id: "dock-scheduling", label: "Dock Scheduling", icon: Truck, permission: "dock-scheduling.view", href: "/dock-scheduling" },
-    { id: "orders", label: "Orders", icon: FileText, permission: "order-fulfillment.view", href: "/order-fulfillment" },
-    { id: "dispatch", label: "Dispatch", icon: Truck, permission: "dispatch.view", href: "/dispatch" },
-    { id: "returns", label: "Returns", icon: RefreshCw, permission: "returns.view", href: "/returns" },
-    { id: "reports", label: "Reports", icon: BarChart3, permission: "reports.view", href: "/reports" },
-    { id: "users", label: "Users", icon: Users, permission: "user-management.view", role: ["admin", "manager"], href: "/user-management" },
-    { id: "loading-demo", label: "Loading Demo", icon: Clock, permission: null, href: "/loading-demo" }, // For demo purposes
-  ]
-
-  const handleModuleChange = (href: string) => {
+  const handleModuleChange = useCallback((href: string) => {
     router.push(href)
     dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
-  }
+  }, [router, dispatch])
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout()
     setShowLogoutDialog(false)
-  }
+  }, [logout])
+
+  // const toggleSettingsPanel = useCallback(() => {
+  //   setSettingsPanelOpen(prev => !prev)
+  // }, [])
+
+  const toggleNotificationPanel = useCallback(() => {
+    setNotificationPanelOpen(prev => !prev)
+  }, [])
+
+  const closeSettingsPanel = useCallback(() => {
+    setSettingsPanelOpen(false)
+  }, [])
+
+  const closeNotificationPanel = useCallback(() => {
+    setNotificationPanelOpen(false)
+  }, [])
+
+  // const openLogoutDialog = useCallback(() => {
+  //   setShowLogoutDialog(true)
+  // }, [])
+
+  const closeLogoutDialog = useCallback(() => {
+    setShowLogoutDialog(false)
+  }, [])
+
+  const memoizedNavigationItems = useMemo(() => {
+    return navigationItems.map((item) => {
+      const hasPermission = !item.permission || can(item.permission)
+      const hasRequiredRole = !item.role || (authState.user && item.role.includes(authState.user.role))
+
+      if (!hasPermission || !hasRequiredRole) return null
+
+      return (
+        <Button
+          key={item.id}
+          variant={pathname.startsWith(item.href) ? "default" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => handleModuleChange(item.href)}
+        >
+          <item.icon className="h-4 w-4 mr-3" />
+          {item.label}
+        </Button>
+      )
+    })
+  }, [pathname, can, authState.user, handleModuleChange])
 
   return (
     <ProtectedRoute>
@@ -101,25 +147,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Right Section - Actions and User */}
             <div className="flex items-center space-x-2 lg:space-x-3">
               {/* Notifications */}
-              <NotificationButton onToggle={() => setNotificationPanelOpen(true)} unreadCount={10} />
+              <NotificationButton onToggle={toggleNotificationPanel} unreadCount={10} />
 
               {/* User Profile */}
-              <UserProfileButton onLogout={logout} />
+              <UserProfileButton/>
             </div>
           </div>
         </header>
 
         {/* Settings Side Panel */}
-        <SettingsPanel isOpen={settingsPanelOpen} onClose={() => setSettingsPanelOpen(false)} />
+        <SettingsPanel isOpen={settingsPanelOpen} onClose={closeSettingsPanel} />
 
         {/* Notification Panel */}
-        <NotificationPanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
+        <NotificationPanel isOpen={notificationPanelOpen} onClose={closeNotificationPanel} />
 
         {/* Logout Confirmation Dialog */}
         <LogoutConfirmDialog
           isOpen={showLogoutDialog}
           onConfirm={handleLogout}
-          onCancel={() => setShowLogoutDialog(false)}
+          onCancel={closeLogoutDialog}
         />
 
         <div className="flex">
@@ -132,25 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <div className="p-4 pt-20 lg:pt-4">
               <div className="space-y-1">
-                {navigationItems.map((item) => {
-                  // Check if user has permission to see this item
-                  const hasPermission = !item.permission || can(item.permission)
-                  const hasRequiredRole = !item.role || (authState.user && item.role.includes(authState.user.role))
-
-                  if (!hasPermission || !hasRequiredRole) return null
-
-                  return (
-                    <Button
-                      key={item.id}
-                      variant={pathname.startsWith(item.href) ? "default" : "ghost"}
-                      className="w-full justify-start"
-                      onClick={() => handleModuleChange(item.href)}
-                    >
-                      <item.icon className="h-4 w-4 mr-3" />
-                      {item.label}
-                    </Button>
-                  )
-                })}
+                {memoizedNavigationItems}
               </div>
 
               {/* Mobile-only logout section */}
@@ -180,13 +208,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Main Content */}
           <main className="flex-1 p-4 lg:p-6 min-h-screen">
-            {state.loading ? (
+            <Suspense fallback={
               <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <LoadingSpinner variant="default" size="sm" />
               </div>
-            ) : (
-              children
-            )}
+            }>
+              {children}
+            </Suspense>
           </main>
         </div>
 

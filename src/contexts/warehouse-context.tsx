@@ -104,7 +104,7 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
     } else if (userAssignedWarehouseIds.length > 0) {
       return warehouses.filter(wh => userAssignedWarehouseIds.includes(wh.id));
     } else {
-      return [warehouses[0]]; // Default to the first warehouse if no specific assignments
+      return warehouses.length > 0 ? [warehouses[0]] : []; // Return an empty array if warehouses is empty
     }
   }, [canViewAllWarehouses, userAssignedWarehouseIds]);
 

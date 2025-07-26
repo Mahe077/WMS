@@ -42,6 +42,17 @@ const mockWarehouses: WarehouseItem[] = [
   },
 ];
 
+const ALL_WAREHOUSES_ITEM: WarehouseItem = {
+  id: "ALL",
+  name: "All Warehouses",
+  location: "Global",
+  code: "ALL",
+  status: "active",
+  capacity: 0,
+  currentLoad: 0,
+  staff: 0,
+};
+
 describe('WarehouseSelector', () => {
   const mockHandleWarehouseSelect = jest.fn();
 
@@ -50,7 +61,7 @@ describe('WarehouseSelector', () => {
       selectedWarehouse: mockWarehouses[0],
       warehouses: mockWarehouses,
       handleWarehouseSelect: mockHandleWarehouseSelect,
-      canViewAllWarehouses: false, // Default to false for most tests
+      canViewAllWarehouses: false,
     });
   });
 
@@ -113,7 +124,7 @@ describe('WarehouseSelector', () => {
   it('renders "All Warehouses" option if canViewAllWarehouses is true', () => {
     (useWarehouse as jest.Mock).mockReturnValue({
       selectedWarehouse: mockWarehouses[0],
-      warehouses: mockWarehouses,
+      warehouses: [ALL_WAREHOUSES_ITEM, ...mockWarehouses],
       handleWarehouseSelect: mockHandleWarehouseSelect,
       canViewAllWarehouses: true,
     });
@@ -134,23 +145,23 @@ describe('WarehouseSelector', () => {
     expect(screen.queryByText('All Warehouses')).not.toBeInTheDocument();
   });
 
-  it(`calls handleWarehouseSelect with 'all' when "All Warehouses" is clicked`, () => {
+  it(`calls handleWarehouseSelect with ALL_WAREHOUSES_ITEM when "All Warehouses" is clicked`, () => {
     (useWarehouse as jest.Mock).mockReturnValue({
       selectedWarehouse: mockWarehouses[0],
-      warehouses: mockWarehouses,
+      warehouses: [ALL_WAREHOUSES_ITEM, ...mockWarehouses],
       handleWarehouseSelect: mockHandleWarehouseSelect,
       canViewAllWarehouses: true,
     });
     render(<WarehouseSelector />);
     fireEvent.click(screen.getByRole('button', { name: /Main Distribution Center/i })); // Open dropdown
     fireEvent.click(screen.getByText('All Warehouses'));
-    expect(mockHandleWarehouseSelect).toHaveBeenCalledWith('all');
+    expect(mockHandleWarehouseSelect).toHaveBeenCalledWith(ALL_WAREHOUSES_ITEM);
   });
 
-  it(`displays "All Warehouses" as selected when 'all' is the selectedWarehouse`, () => {
+  it(`displays "All Warehouses" as selected when ALL_WAREHOUSES_ITEM is the selectedWarehouse`, () => {
     (useWarehouse as jest.Mock).mockReturnValue({
-      selectedWarehouse: 'all',
-      warehouses: mockWarehouses,
+      selectedWarehouse: ALL_WAREHOUSES_ITEM,
+      warehouses: [ALL_WAREHOUSES_ITEM, ...mockWarehouses],
       handleWarehouseSelect: mockHandleWarehouseSelect,
       canViewAllWarehouses: true,
     });

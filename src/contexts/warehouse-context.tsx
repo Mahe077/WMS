@@ -90,31 +90,41 @@ const WarehouseContext = createContext<WarehouseContextType | undefined>(undefin
 
 export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
   const { addNotification } = useNotifications();
-  const { can } = useAuth();
+  const { can, state: authState } = useAuth();
   const canViewAllWarehouses = can('warehouse.view_all');
 
-  const availableWarehouses = React.useMemo(
-    () => canViewAllWarehouses
-      ? [ALL_WAREHOUSES_ITEM, ...warehouses]
-      : warehouses,
-    [canViewAllWarehouses]
+  const userAssignedWarehouseIds = React.useMemo(
+    () => authState.user?.assignedWarehouseIds || [],
+    [authState.user?.assignedWarehouseIds]
   );
 
-  const [selectedWarehouse, setSelectedWarehouse] = useState<WarehouseItem>(
-    canViewAllWarehouses ? ALL_WAREHOUSES_ITEM : availableWarehouses[0]
-  );
+  const filteredWarehouses = React.useMemo(() => {
+    if (canViewAllWarehouses) {
+      return [ALL_WAREHOUSES_ITEM, ...warehouses];
+    } else if (userAssignedWarehouseIds.length > 0) {
+      return warehouses.filter(wh => userAssignedWarehouseIds.includes(wh.id));
+    } else {
+      return [warehouses[0]]; // Default to the first warehouse if no specific assignments
+    }
+  }, [canViewAllWarehouses, userAssignedWarehouseIds]);
+
+  const [selectedWarehouse, setSelectedWarehouse] = useState<WarehouseItem>(() => {
+    if (canViewAllWarehouses) {
+      return ALL_WAREHOUSES_ITEM;
+    } else if (userAssignedWarehouseIds.length > 0) {
+      const firstAssigned = warehouses.find(wh => userAssignedWarehouseIds.includes(wh.id));
+      return firstAssigned || warehouses[0]; // Fallback to first if assigned not found
+    } else {
+      return warehouses[0];
+    }
+  });
 
   useEffect(() => {
-    // If user loses 'view_all' permission and 'All Warehouses' is selected, default to first available warehouse
-    if (!canViewAllWarehouses && selectedWarehouse.id === ALL_WAREHOUSES_ITEM.id) {
-      setSelectedWarehouse(availableWarehouses[0]);
+    // If selected warehouse is no longer in the filtered list, reset it
+    if (!filteredWarehouses.some(wh => wh.id === selectedWarehouse.id)) {
+      setSelectedWarehouse(filteredWarehouses[0]);
     }
-    // If user gains 'view_all' permission and 'All Warehouses' is not selected, but it's the default, select it.
-    // Or if the currently selected warehouse is no longer available (e.g., filtered out by permissions)
-    if (canViewAllWarehouses && !availableWarehouses.some(wh => wh.id === selectedWarehouse.id)) {
-      setSelectedWarehouse(ALL_WAREHOUSES_ITEM);
-    }
-  }, [canViewAllWarehouses, selectedWarehouse, availableWarehouses]);
+  }, [filteredWarehouses, selectedWarehouse]);
 
   const handleWarehouseSelect = (warehouse: WarehouseItem) => {
     if (warehouse.status === "maintenance" && warehouse.id !== ALL_WAREHOUSES_ITEM.id) {
@@ -133,7 +143,7 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <WarehouseContext.Provider value={{ selectedWarehouse, warehouses: availableWarehouses, handleWarehouseSelect, canViewAllWarehouses }}>
+    <WarehouseContext.Provider value={{ selectedWarehouse, warehouses: filteredWarehouses, handleWarehouseSelect, canViewAllWarehouses }}>
       {children}
     </WarehouseContext.Provider>
   );

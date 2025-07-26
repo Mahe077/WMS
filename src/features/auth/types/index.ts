@@ -9,6 +9,7 @@ export type User = {
   createdAt?: string // optional, for tracking user creation date
   updatedAt?: string // optional, for tracking user updates
   customFields?: Record<string, unknown> // optional, for any additional user-specific data
+  assignedWarehouseIds?: string[] // optional, for specific warehouse access
 }
 
 export type Auth = {

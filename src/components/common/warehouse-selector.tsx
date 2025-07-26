@@ -16,7 +16,7 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const isMobile = useMobile();
   const isDesktop = !isMobile;
-  const { selectedWarehouse, warehouses, handleWarehouseSelect, canViewAllWarehouses } = useWarehouse()
+  const { selectedWarehouse, warehouses, handleWarehouseSelect } = useWarehouse()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,8 +54,9 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
   }
 
   const renderWarehouseItem = (warehouse: WarehouseItem, isSelected: boolean) => {
-    const capacityPercentage = getCapacityPercentage(warehouse.currentLoad, warehouse.capacity)
-    const isDisabled = warehouse.status === "maintenance"
+    const isAllWarehouses = warehouse.id === "ALL";
+    const capacityPercentage = getCapacityPercentage(warehouse.currentLoad, warehouse.capacity);
+    const isDisabled = warehouse.status === "maintenance" && !isAllWarehouses; // ALL_WAREHOUSES_ITEM is never disabled
 
     return (
       <button
@@ -73,22 +74,24 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
           <div className="relative flex-shrink-0">
             <div className={`
               ${isDesktop ? "w-8 h-8" : "w-10 h-10"}
-              bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center
+              ${isAllWarehouses ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-blue-600"} rounded-lg flex items-center justify-center
               ${isDesktop ? "" : "shadow-md"}
             `}>
-              <Package className={`${isDesktop ? "h-4 w-4" : "h-5 w-5"} text-white`} />
+              <Package className={`${isDesktop ? "h-4 w-4" : "h-5 w-5"} ${isAllWarehouses ? "text-gray-600" : "text-white"}`} />
             </div>
-            <div
-              className={`absolute
-                ${isDesktop ? "-bottom-0.5 -right-0.5 w-2.5 h-2.5" : "-bottom-1 -right-1 w-3 h-3"}
-                rounded-full border border-white ${
-                warehouse.status === "active"
-                  ? "bg-green-400"
-                  : warehouse.status === "maintenance"
-                    ? "bg-orange-400"
-                    : "bg-gray-400"
-              }`}
-            ></div>
+            {!isAllWarehouses && ( // Only show status badge for individual warehouses
+              <div
+                className={`absolute
+                  ${isDesktop ? "-bottom-0.5 -right-0.5 w-2.5 h-2.5" : "-bottom-1 -right-1 w-3 h-3"}
+                  rounded-full border border-white ${
+                  warehouse.status === "active"
+                    ? "bg-green-400"
+                    : warehouse.status === "maintenance"
+                      ? "bg-orange-400"
+                      : "bg-gray-400"
+                }`}
+              ></div>
+            )}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -136,7 +139,7 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
     )
   }
 
-  if (warehouses.length <= 1 && !canViewAllWarehouses) {
+  if (warehouses.length <= 1) {
     return (
       <></>
     )
@@ -153,31 +156,37 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
         >
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-                <Package className="h-5 w-5 text-white" />
+              <div className={`w-10 h-10 ${selectedWarehouse.id === "ALL" ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-blue-600"} rounded-lg flex items-center justify-center shadow-md`}>
+                <Package className={`h-5 w-5 ${selectedWarehouse.id === "ALL" ? "text-gray-600" : "text-white"}`} />
               </div>
-              <div
-                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                  selectedWarehouse.status === "active"
-                    ? "bg-green-400"
-                    : selectedWarehouse.status === "maintenance"
-                      ? "bg-orange-400"
-                      : "bg-gray-400"
-                }`}
-              ></div>
+              {selectedWarehouse.id !== "ALL" && (
+                <div
+                  className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                    selectedWarehouse.status === "active"
+                      ? "bg-green-400"
+                      : selectedWarehouse.status === "maintenance"
+                        ? "bg-orange-400"
+                        : "bg-gray-400"
+                  }`}
+                ></div>
+              )}
             </div>
 
             <div className="flex flex-col items-start min-w-0">
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-semibold text-gray-900 truncate">{selectedWarehouse.name}</span>
-                <Badge variant="outline" className="text-xs font-medium">
-                  {selectedWarehouse.code}
-                </Badge>
+                {selectedWarehouse.id !== "ALL" && (
+                  <Badge variant="outline" className="text-xs font-medium">
+                    {selectedWarehouse.code}
+                  </Badge>
+                )}
               </div>
-              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                <MapPin className="h-3 w-3" />
-                <span className="truncate">{selectedWarehouse.location}</span>
-              </div>
+              {selectedWarehouse.id !== "ALL" && (
+                <div className="flex items-center space-x-2 text-xs text-gray-500">
+                  <MapPin className="h-3 w-3" />
+                  <span className="truncate">{selectedWarehouse.location}</span>
+                </div>
+              )}
             </div>
           </div>
           <ChevronDown
@@ -222,23 +231,27 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
         onClick={() => setIsOpen(true)}
       >
         <div className="relative">
-          <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-            <Package className="h-3.5 w-3.5 text-white" />
+          <div className={`w-7 h-7 ${selectedWarehouse.id === "ALL" ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-blue-600"} rounded-lg flex items-center justify-center shadow-sm`}>
+            <Package className={`h-3.5 w-3.5 ${selectedWarehouse.id === "ALL" ? "text-gray-600" : "text-white"}`} />
           </div>
-          <div
-            className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${
-              selectedWarehouse.status === "active"
-                ? "bg-green-400"
-                : selectedWarehouse.status === "maintenance"
-                  ? "bg-orange-400"
-                  : "bg-gray-400"
-            }`}
-          ></div>
+          {selectedWarehouse.id !== "ALL" && (
+            <div
+              className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${
+                selectedWarehouse.status === "active"
+                  ? "bg-green-400"
+                  : selectedWarehouse.status === "maintenance"
+                    ? "bg-orange-400"
+                    : "bg-gray-400"
+              }`}
+            ></div>
+          )}
         </div>
         <div className="flex flex-col items-start min-w-0">
-          <span className="text-xs font-semibold text-gray-900 truncate max-w-[80px]">{selectedWarehouse.code}</span>
+          <span className="text-xs font-semibold text-gray-900 truncate max-w-[80px]">
+            {selectedWarehouse.id === "ALL" ? 'All' : selectedWarehouse.code}
+          </span>
           <span className="text-xs text-gray-500 truncate max-w-[80px]">
-            {selectedWarehouse.location.split(",")[0]}
+            {selectedWarehouse.id === "ALL" ? 'Locations' : selectedWarehouse.location.split(",")[0]}
           </span>
         </div>
         <ChevronDown className="h-3 w-3 text-gray-400 flex-shrink-0" />
@@ -281,46 +294,54 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
               <div className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-2">Current Selection</div>
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <Package className="h-6 w-6 text-white" />
+                  <div className={`w-12 h-12 ${selectedWarehouse.id === "ALL" ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-blue-600"} rounded-xl flex items-center justify-center shadow-lg`}>
+                    <Package className={`h-6 w-6 ${selectedWarehouse.id === "ALL" ? "text-gray-600" : "text-white"}`} />
                   </div>
-                  <div
-                    className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white ${
-                      selectedWarehouse.status === "active"
-                        ? "bg-green-400"
-                        : selectedWarehouse.status === "maintenance"
-                          ? "bg-orange-400"
-                          : "bg-gray-400"
-                    }`}
-                  ></div>
+                  {selectedWarehouse.id !== "ALL" && (
+                    <div
+                      className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                        selectedWarehouse.status === "active"
+                          ? "bg-green-400"
+                          : selectedWarehouse.status === "maintenance"
+                            ? "bg-orange-400"
+                            : "bg-gray-400"
+                      }`}
+                    ></div>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
                     <h3 className="font-bold text-gray-900 truncate">{selectedWarehouse.name}</h3>
-                    <Badge variant="outline" className="text-xs font-medium">
-                      {selectedWarehouse.code}
-                    </Badge>
+                    {selectedWarehouse.id !== "ALL" && (
+                      <Badge variant="outline" className="text-xs font-medium">
+                        {selectedWarehouse.code}
+                      </Badge>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span>{selectedWarehouse.location}</span>
-                  </div>
-                  <div className="flex items-center space-x-4 text-xs">
-                    <div className="flex items-center space-x-1">
-                      <span className="text-gray-500">Capacity:</span>
-                      <span
-                        className={`font-semibold ${getCapacityColor(
-                          getCapacityPercentage(selectedWarehouse.currentLoad, selectedWarehouse.capacity),
-                        )}`}
-                      >
-                        {getCapacityPercentage(selectedWarehouse.currentLoad, selectedWarehouse.capacity)}%
-                      </span>
+                  {selectedWarehouse.id !== "ALL" && (
+                    <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span>{selectedWarehouse.location}</span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-3 w-3 text-gray-400" />
-                      <span className="font-semibold text-gray-900">{selectedWarehouse.staff}</span>
+                  )}
+                  {selectedWarehouse.id !== "ALL" && (
+                    <div className="flex items-center space-x-4 text-xs">
+                      <div className="flex items-center space-x-1">
+                        <span className="text-gray-500">Capacity:</span>
+                        <span
+                          className={`font-semibold ${getCapacityColor(
+                            getCapacityPercentage(selectedWarehouse.currentLoad, selectedWarehouse.capacity),
+                          )}`}
+                        >
+                          {getCapacityPercentage(selectedWarehouse.currentLoad, selectedWarehouse.capacity)}%
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Users className="h-3 w-3 text-gray-400" />
+                        <span className="font-semibold text-gray-900">{selectedWarehouse.staff}</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

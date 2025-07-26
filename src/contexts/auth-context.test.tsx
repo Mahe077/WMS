@@ -83,7 +83,8 @@ describe("AuthProvider", () => {
         <TestComponent />
       </AuthProvider>
     );
-    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
+    // No loading spinner is rendered by AuthProvider itself, so we just wait for the state to settle
+    await waitFor(() => expect(queryByTestId("isAuthenticated")).not.toBeNull());
     expect(localStorage.getItem("wms_token")).toBeNull();
   });
 
@@ -104,7 +105,8 @@ describe("AuthProvider", () => {
         <TestComponent />
       </AuthProvider>
     );
-    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
+    // No loading spinner is rendered by AuthProvider itself, so we just wait for the state to settle
+    await waitFor(() => expect(queryByTestId("isAuthenticated")).not.toBeNull());
     // Wait for the context to finish initializing and set the user
     await waitFor(() => getByTestId("isAuthenticated").textContent === "yes");
     expect(mockValidateTokenApi).toHaveBeenCalledWith("valid-token");
@@ -124,13 +126,14 @@ describe("AuthProvider", () => {
         <TestComponent />
       </AuthProvider>
     )
-    await waitFor(() => expect(queryByTestId("loading-spinner")).toBeNull());
+    // No loading spinner is rendered by AuthProvider itself, so we just wait for the state to settle
+    await waitFor(() => expect(queryByTestId("isAuthenticated")).not.toBeNull());
     
     await waitFor(() => getByText("Logout"))
     await act(async () => {
-      getByText("Logout").click()
-    })
-    expect(localStorage.getItem("wms_token")).toBeNull()
+      getByText("Logout").click();
+      await waitFor(() => expect(localStorage.getItem("wms_token")).toBeNull());
+    });
   })
 
   it("can() returns correct permission admin", async () => {

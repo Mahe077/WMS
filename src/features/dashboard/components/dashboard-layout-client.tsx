@@ -12,8 +12,8 @@ import { ProtectedRoute } from "@/components/common/protected-route"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 
-import { DashboardHeader } from "./DashboardHeader"
-import { DashboardSidebar } from "./DashboardSidebar"
+import { DashboardHeader } from "./dashboard-header"
+import { DashboardSidebar } from "./dashboard-sidebar"
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const { logout } = useAuth()

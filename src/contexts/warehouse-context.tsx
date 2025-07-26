@@ -122,7 +122,11 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // If selected warehouse is no longer in the filtered list, reset it
     if (!filteredWarehouses.some(wh => wh.id === selectedWarehouse.id)) {
-      setSelectedWarehouse(filteredWarehouses[0]);
+      if (filteredWarehouses.length > 0) {
+        setSelectedWarehouse(filteredWarehouses[0]);
+      } else {
+        console.error("Filtered warehouses is empty. Unable to set selected warehouse.");
+      }
     }
   }, [filteredWarehouses, selectedWarehouse]);
 

@@ -37,7 +37,7 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
             <div className="relative">
               <Image src="/wla.png" alt="Logo" width={40} height={40} unoptimized={true} className="h-7 w-19 lg:h-8 lg:w-20" priority />
             </div>
-            <div className="flex flex-col hidden sm:flex">
+            <div className="hidden sm:flex sm:flex-col">
               <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
               <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
             </div>

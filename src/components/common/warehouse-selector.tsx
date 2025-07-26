@@ -219,7 +219,7 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
     )
   }
 
-  if (warehouses.length <= 1){
+  if (warehouses.length <= 1) {
     return (
       <></>
     )

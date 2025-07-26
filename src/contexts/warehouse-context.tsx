@@ -113,9 +113,9 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
       return ALL_WAREHOUSES_ITEM;
     } else if (userAssignedWarehouseIds.length > 0) {
       const firstAssigned = warehouses.find(wh => userAssignedWarehouseIds.includes(wh.id));
-      return firstAssigned || warehouses[0]; // Fallback to first if assigned not found
+      return firstAssigned || (warehouses.length > 0 ? warehouses[0] : null); // Fallback to null if warehouses is empty
     } else {
-      return warehouses[0];
+      return warehouses.length > 0 ? warehouses[0] : null; // Return null if warehouses is empty
     }
   });
 

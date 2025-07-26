@@ -7,6 +7,7 @@ import { Stat } from "@/lib/types";
 import { CircleCheckBig, FileText, RefreshCcw, Truck } from "lucide-react";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Order } from "../types/order.types";
+import { useWarehouse } from "@/contexts/warehouse-context";
 
 const stats: Stat[] = [
   {
@@ -44,16 +45,13 @@ const stats: Stat[] = [
 ];
 
 interface ActiveOrderViewProps {
-  selectedWarehouse: string;
-  warehouses: { id: string; name: string }[];
   orders: Order[];
 }
 
 export function ActiveOrderView({
-  selectedWarehouse,
-  warehouses,
   orders,
 }: ActiveOrderViewProps) {
+  const { selectedWarehouse } = useWarehouse();
   const { addNotification } = useNotifications();
   const tableColumns: TableColumn<Order>[] = [
     { key: "id", label: "Order ID", priority: "high" },
@@ -84,7 +82,7 @@ export function ActiveOrderView({
     <React.Fragment>
       {/* Show selected warehouse */}
       <div className="mb-2 text-sm text-muted-foreground">
-        Warehouse: {warehouses.find((w) => w.id === selectedWarehouse)?.name}
+        Warehouse: {selectedWarehouse.name}
       </div>
       {/* Order Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

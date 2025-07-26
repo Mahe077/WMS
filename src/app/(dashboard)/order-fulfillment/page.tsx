@@ -5,22 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { ViewSelector } from "@/components/common/view-selector";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileText, Package, AlertCircle} from "lucide-react"
+import { FileText, Package, AlertCircle } from "lucide-react"
 import { ProtectedRoute } from "@/components/common/protected-route"
 import { OrderStatus, PickListItemStages } from "@/lib/enum"
 import { ActiveOrderView } from "@/features/order-fulfillment/components/active-order-view"
 import { PickListView } from "@/features/order-fulfillment/components/pick-list-view"
 import { Order, PickListItem } from "@/features/order-fulfillment/types/order.types"
+import { PageHeader } from "@/components/common/page-header";
 
 export default function OrderFulfillmentPage() {
   const [selectedView, setSelectedView] = useState("orders")
-  // Demo warehouse list
-  const warehouses = [
-    { id: "WH-001", name: "Sydney DC" },
-    { id: "WH-002", name: "Melbourne DC" },
-    { id: "WH-003", name: "Brisbane DC" },
-  ]
-  const [selectedWarehouse, setSelectedWarehouse] = useState(warehouses[0].id)
 
   const orders: Order[] = [
     {
@@ -94,23 +88,11 @@ export default function OrderFulfillmentPage() {
   return (
     <ProtectedRoute requiredPermission="order-fulfillment.view">
       <div className="space-y-6">
-        {/* Warehouse Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Order Fulfillment</h2>
-            <p className="text-muted-foreground">Manage order processing, picking, and packing</p>
-          </div>
+        <PageHeader
+          title="Order Fulfillment"
+          description="Manage order processing, picking, and packing"
+        >
           <div className="flex flex-col sm:flex-row gap-2 items-center">
-            <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Select warehouse" />
-              </SelectTrigger>
-              <SelectContent>
-                {warehouses.map((wh) => (
-                  <SelectItem key={wh.id} value={wh.id}>{wh.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Button variant="outline" className="w-full sm:w-auto">
               <FileText className="h-4 w-4 mr-2" />
               Generate Pick List
@@ -120,7 +102,7 @@ export default function OrderFulfillmentPage() {
               New Order
             </Button>
           </div>
-        </div>
+        </PageHeader>
 
         {/* View Selector */}
         <ViewSelector
@@ -134,14 +116,12 @@ export default function OrderFulfillmentPage() {
         />
 
         {selectedView === "orders" && (
-          <ActiveOrderView selectedWarehouse={selectedWarehouse} warehouses={warehouses} orders={orders} />
+          <ActiveOrderView orders={orders} />
         )}
 
         {selectedView === "picking" && (
           <PickListView
             pickListData={pickList}
-            selectedWarehouse={selectedWarehouse}
-            warehouses={warehouses}
           />
         )}
 

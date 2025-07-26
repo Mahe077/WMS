@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { AppProvider } from "@/contexts/app-context"
 import { AuthProvider } from "@/providers/auth-provider"
+import { WarehouseProvider } from "@/contexts/warehouse-context"
 
 
 const inter = Inter({ 
@@ -25,7 +26,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <AppProvider>
           <AuthProvider>
-            {children}
+            <WarehouseProvider>
+              {children}
+            </WarehouseProvider>
           </AuthProvider>
         </AppProvider>
       </body>

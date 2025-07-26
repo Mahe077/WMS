@@ -4,72 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronDown, Package, MapPin, Users, AlertTriangle, X } from "lucide-react"
-import { useNotifications } from "@/contexts/app-context"
 import { useMobile } from "@/hooks/use-mobile"
-
-interface WarehouseItem {
-  id: string
-  name: string
-  location: string
-  code: string
-  status: "active" | "inactive" | "maintenance"
-  capacity: number
-  currentLoad: number
-  staff: number
-}
-
-const warehouses: WarehouseItem[] = [
-  {
-    id: "WH001",
-    name: "Main Distribution Center",
-    location: "Atlanta, GA",
-    code: "ATL-DC",
-    status: "active",
-    capacity: 50000,
-    currentLoad: 32500,
-    staff: 45,
-  },
-  {
-    id: "WH002",
-    name: "West Coast Hub",
-    location: "Los Angeles, CA",
-    code: "LAX-HUB",
-    status: "active",
-    capacity: 35000,
-    currentLoad: 28900,
-    staff: 32,
-  },
-  {
-    id: "WH003",
-    name: "Northeast Facility",
-    location: "Newark, NJ",
-    code: "EWR-FAC",
-    status: "active",
-    capacity: 42000,
-    currentLoad: 18750,
-    staff: 38,
-  },
-  {
-    id: "WH004",
-    name: "Chicago Processing",
-    location: "Chicago, IL",
-    code: "CHI-PROC",
-    status: "maintenance",
-    capacity: 28000,
-    currentLoad: 0,
-    staff: 15,
-  },
-  {
-    id: "WH005",
-    name: "Texas Regional",
-    location: "Dallas, TX",
-    code: "DFW-REG",
-    status: "active",
-    capacity: 38000,
-    currentLoad: 22100,
-    staff: 29,
-  },
-]
+import { useWarehouse, WarehouseItem } from "@/contexts/warehouse-context"
 
 interface WarehouseSelectorProps {
   className?: string
@@ -77,12 +13,10 @@ interface WarehouseSelectorProps {
 
 export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedWarehouse, setSelectedWarehouse] = useState<WarehouseItem>(warehouses[0])
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { addNotification } = useNotifications()
   const isMobile = useMobile();
   const isDesktop = !isMobile;
-
+  const { selectedWarehouse, warehouses, handleWarehouseSelect, canViewAllWarehouses } = useWarehouse()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,23 +28,6 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isDesktop])
-
-  const handleWarehouseSelect = (warehouse: WarehouseItem) => {
-    if (warehouse.status === "maintenance") {
-      addNotification({
-        type: "warning",
-        message: `${warehouse.name} is currently under maintenance and cannot be selected.`,
-      })
-      return
-    }
-
-    setSelectedWarehouse(warehouse)
-    setIsOpen(false)
-    addNotification({
-      type: "success",
-      message: `Switched to ${warehouse.name} (${warehouse.code})`,
-    })
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -126,7 +43,7 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
   }
 
   const getCapacityPercentage = (currentLoad: number, capacity: number) => {
-    return Math.round((currentLoad / capacity) * 100)
+    return capacity !== 0 ? Math.round((currentLoad / capacity) * 100) : 0
   }
 
   const getCapacityColor = (percentage: number) => {
@@ -219,7 +136,7 @@ export function WarehouseSelector({ className = "" }: WarehouseSelectorProps) {
     )
   }
 
-  if (warehouses.length <= 1) {
+  if (warehouses.length <= 1 && !canViewAllWarehouses) {
     return (
       <></>
     )

@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NotificationButton } from "@/components/common/notification-button"
 import { useApp } from "@/contexts/app-context"
-import { WarehouseSelectorMobile } from "@/components/common/warehouse-selector-mobile"
-import { WarehouseSelectorDesktop } from "@/components/common/warehouse-selector-desktop"
+import { WarehouseSelector } from "@/components/common/warehouse-selector"
 
 interface DashboardHeaderProps {
   toggleNotificationPanel: () => void;
@@ -52,15 +51,7 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
         <div className="flex items-center space-x-2 lg:space-x-3">
           {/* Notifications */}
           <NotificationButton onToggle={toggleNotificationPanel} unreadCount={unreadNotificationCount} />
-          {/* Mobile Warehouse Selector */}
-          <div className="lg:hidden">
-            <WarehouseSelectorMobile />
-          </div>
-
-          {/* Desktop Warehouse Selector */}
-          <div className="hidden lg:block">
-            <WarehouseSelectorDesktop />
-          </div>
+          <WarehouseSelector />
         </div>
       </div>
     </header>

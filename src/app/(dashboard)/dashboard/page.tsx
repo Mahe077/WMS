@@ -33,7 +33,7 @@ import {
   YAxis,
 } from "recharts";
 import { useBarcodeScanner } from "@/features/receiving/hooks/use-barcode-scanner";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ActivityItem } from "@/components/common/activity-item";
 import { AlertType } from "@/lib/enum";
 // import { Alert } from "@/lib/types"
@@ -105,7 +105,7 @@ const data = [
 const DashboardPage = () => {
   const { addNotification } = useNotifications();
 
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const handleQuickAction = (action: string) => {
     addNotification({

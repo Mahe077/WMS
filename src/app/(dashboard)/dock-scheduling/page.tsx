@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useMemo } from "react"
 import { StatusBadge } from "@/components/common/status-badge";
 import { useNotifications } from "@/contexts/app-context"
-import { useMobile } from "@/hooks/use-mobile"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { DockBookingCategory, DockBookingPriority, DockStatus, DockType, TemperatureControl, VehicleType } from "@/lib/enum"
 import { ProtectedRoute } from "@/components/common/protected-route"
 import { Dock, DockBooking } from "@/features/dock-scheduling/types/dock.types"
@@ -14,7 +14,7 @@ import { DockSchedulingMobile } from "@/features/dock-scheduling/components/dock
 
 export default function DockSchedulingPage() {
   const { addNotification } = useNotifications()
-  const isMobile = useMobile()
+  const isMobile = useIsMobile()
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0])
   const [selectedDock, setSelectedDock] = useState<string>("all")
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null)

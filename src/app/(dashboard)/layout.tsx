@@ -40,6 +40,7 @@ import {
   Blocks,
   Container,
   CalendarCheck,
+  Settings,
 } from "lucide-react"
 
 import { NotificationToast } from "@/components/common/notification-toast"
@@ -54,6 +55,11 @@ import { ProtectedRoute } from "@/components/common/protected-route"
 
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/common/app-sidebar"
+import { ProtectedComponent } from "@/components/common/protected-component"
+import { Separator } from "@/components/ui/separator"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { state, dispatch } = useApp()
@@ -120,115 +126,218 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     })
   }, [pathname, can, authState.user, handleModuleChange])
 
+    const getModuleTitle = () => {
+    const moduleMap: Record<string, string> = {
+      dashboard: "Dashboard",
+      receiving: "Receiving & ASN Processing",
+      inventory: "Inventory Management",
+      "order-fulfillment": "Order Fulfillment",
+      dispatch: "Dispatch Management",
+      returns: "Returns Processing",
+      reports: "Reports & Analytics",
+      "user-management": "User Management",
+      "pallet-view": "Pallet View",
+      "bay-booking": "Bay Booking",
+      "3d-view": "3D Warehouse View",
+      "dock-scheduling": "Dock Scheduling",
+    }
+    return moduleMap[state.activeModule] || "Dashboard"
+  }
+  
   return (
+    // <ProtectedRoute>
+    //   {/* <div className="min-h-screen bg-gray-50">
+    //     {/* Header */}
+    //     <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 sticky top-0 z-40 shadow-sm">
+    //       <div className="flex items-center justify-between">
+    //         {/* Left Section - Logo and Mobile Menu */}
+    //         <div className="flex items-center space-x-4">
+    //           {/* Mobile Menu Toggle */}
+    //           <Button
+    //             variant="ghost"
+    //             size="sm"
+    //             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+    //             onClick={() => dispatch({ type: "TOGGLE_SIDEBAR" })}
+    //           >
+    //             {state.sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+    //           </Button>
+
+    //           {/* Logo Section */}
+    //           <div className="flex items-center space-x-3">
+    //             <div className="relative">
+    //               <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-8 w-8 lg:h-8 lg:w-22" priority />
+    //             </div>
+    //             <div className="flex flex-col">
+    //               <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
+    //               <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
+    //             </div>
+    //             <Badge variant="secondary" className="hidden md:inline-flex bg-blue-50 text-blue-700 border-blue-200">
+    //               v2.1.0
+    //             </Badge>
+    //           </div>
+    //         </div>
+
+    //         {/* Right Section - Actions and User */}
+    //         <div className="flex items-center space-x-2 lg:space-x-3">
+    //           {/* Notifications */}
+    //           <NotificationButton onToggle={toggleNotificationPanel} unreadCount={10} />
+
+    //           {/* User Profile */}
+    //           <UserProfileButton/>
+    //         </div>
+    //       </div>
+    //     </header>
+
+    //     {/* Settings Side Panel */}
+    //     <SettingsPanel isOpen={settingsPanelOpen} onClose={closeSettingsPanel} />
+
+    //     {/* Notification Panel */}
+    //     <NotificationPanel isOpen={notificationPanelOpen} onClose={closeNotificationPanel} />
+
+    //     {/* Logout Confirmation Dialog */}
+    //     <LogoutConfirmDialog
+    //       isOpen={showLogoutDialog}
+    //       onConfirm={handleLogout}
+    //       onCancel={closeLogoutDialog}
+    //     />
+
+    //     <div className="flex">
+    //       {/* Sidebar Navigation */}
+    //       <nav
+    //         className={`
+    //         fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out
+    //         ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+    //       `}
+    //       >
+    //         <div className="p-4 pt-20 lg:pt-4">
+    //           <div className="space-y-1">
+    //             {memoizedNavigationItems}
+    //           </div>
+
+    //           {/* Mobile-only logout section */}
+    //           <div className="pt-6 mt-6 border-t border-gray-200">
+    //             <Button
+    //               variant="ghost"
+    //               className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+    //               onClick={() => {
+    //                 dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
+    //                 setShowLogoutDialog(true)
+    //               }}
+    //             >
+    //               <LogOut className="h-4 w-4 mr-3" />
+    //               Logout
+    //             </Button>
+    //           </div>
+    //         </div>
+    //       </nav>
+
+    //       {/* Overlay for mobile */}
+    //       {state.sidebarOpen && (
+    //         <div
+    //           className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+    //           onClick={() => dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })}
+    //         />
+    //       )}
+
+    //       {/* Main Content */}
+    //       <main className="flex-1 p-4 lg:p-6 min-h-screen">
+    //         <Suspense fallback={
+    //           <div className="flex items-center justify-center h-64">
+    //             <LoadingSpinner variant="default" size="sm" />
+    //           </div>
+    //         }>
+    //           {children}
+    //         </Suspense>
+    //       </main>
+    //     </div>
+
+    //     <NotificationToast />
+    //   </div> */}
+    // </ProtectedRoute>
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 sticky top-0 z-40 shadow-sm">
-          <div className="flex items-center justify-between">
-            {/* Left Section - Logo and Mobile Menu */}
-            <div className="flex items-center space-x-4">
-              {/* Mobile Menu Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => dispatch({ type: "TOGGLE_SIDEBAR" })}
-              >
-                {state.sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-
-              {/* Logo Section */}
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-8 w-8 lg:h-8 lg:w-22" priority />
-                </div>
-                <div className="flex flex-col">
-                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
-                  <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
-                </div>
-                <Badge variant="secondary" className="hidden md:inline-flex bg-blue-50 text-blue-700 border-blue-200">
-                  v2.1.0
-                </Badge>
+      <SidebarProvider>
+        <AppSidebar
+          onModuleChange={handleModuleChange}
+          onLogout={() => setShowLogoutDialog(true)}
+          activeModule={state.activeModule}
+        />
+        <SidebarInset>
+          {/* Header */}
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">3PL WMS</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{getModuleTitle()}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+              {/* <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-8 w-8 lg:h-8 lg:w-22" priority />
               </div>
+              <div className="flex flex-col">
+                <h1 className="text-lg font-bold text-gray-900 leading-tight">3PL WMS</h1>
+                <span className="text-xs text-gray-500 hidden sm:block">Warehouse Management</span>
+              </div>
+            </div> */}
             </div>
-
-            {/* Right Section - Actions and User */}
-            <div className="flex items-center space-x-2 lg:space-x-3">
+            <div className="ml-auto flex items-center space-x-2 px-4">
               {/* Notifications */}
               <NotificationButton onToggle={toggleNotificationPanel} unreadCount={10} />
 
-              {/* User Profile */}
-              <UserProfileButton/>
-            </div>
-          </div>
-        </header>
-
-        {/* Settings Side Panel */}
-        <SettingsPanel isOpen={settingsPanelOpen} onClose={closeSettingsPanel} />
-
-        {/* Notification Panel */}
-        <NotificationPanel isOpen={notificationPanelOpen} onClose={closeNotificationPanel} />
-
-        {/* Logout Confirmation Dialog */}
-        <LogoutConfirmDialog
-          isOpen={showLogoutDialog}
-          onConfirm={handleLogout}
-          onCancel={closeLogoutDialog}
-        />
-
-        <div className="flex">
-          {/* Sidebar Navigation */}
-          <nav
-            className={`
-            fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out
-            ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-          `}
-          >
-            <div className="p-4 pt-20 lg:pt-4">
-              <div className="space-y-1">
-                {memoizedNavigationItems}
-              </div>
-
-              {/* Mobile-only logout section */}
-              <div className="pt-6 mt-6 border-t border-gray-200">
+              {/* Settings Panel Toggle */}
+              <ProtectedComponent requiredRole={["admin", "manager"]}>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={() => {
-                    dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })
-                    setShowLogoutDialog(true)
-                  }}
+                  size="sm"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={() => setSettingsPanelOpen(true)}
                 >
-                  <LogOut className="h-4 w-4 mr-3" />
-                  Logout
+                  <Settings className="h-4 w-4 text-gray-600" />
                 </Button>
-              </div>
-            </div>
-          </nav>
+              </ProtectedComponent>
 
-          {/* Overlay for mobile */}
-          {state.sidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-              onClick={() => dispatch({ type: "SET_SIDEBAR_OPEN", payload: false })}
-            />
-          )}
+              {/* User Profile */}
+              {/* <UserProfileButton /> */}
+            </div>
+          </header>
+
+          {/* Settings Side Panel */}
+          <SettingsPanel isOpen={settingsPanelOpen} onClose={() => setSettingsPanelOpen(false)} />
+
+          {/* Notification Panel */}
+          <NotificationPanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
+
+          {/* Logout Confirmation Dialog */}
+          <LogoutConfirmDialog
+            isOpen={showLogoutDialog}
+            onConfirm={handleLogout}
+            onCancel={() => setShowLogoutDialog(false)}
+          />
 
           {/* Main Content */}
-          <main className="flex-1 p-4 lg:p-6 min-h-screen">
-            <Suspense fallback={
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-gray-50">
+            {state.loading ? (
               <div className="flex items-center justify-center h-64">
-                <LoadingSpinner variant="default" size="sm" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
-            }>
-              {children}
-            </Suspense>
-          </main>
-        </div>
+            ) : (
+              <Suspense fallback={<LoadingSpinner variant="default" size="sm" />}>
+                {children}
+              </Suspense>
+            )}
+          </div>
 
-        <NotificationToast />
-      </div>
+          <NotificationToast />
+        </SidebarInset>
+      </SidebarProvider>
     </ProtectedRoute>
   )
 }

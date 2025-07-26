@@ -74,7 +74,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
           <DashboardSidebar onShowLogoutDialog={openLogoutDialog} />
 
           {/* Main Content */}
-          <main className="flex-1 min-h-screen p-4 lg:p-6 transition-all duration-300 ease-in-out
+          <main className="flex-1 min-h-screen p-4 lg:p-7 transition-all duration-300 ease-in-out
             lg:ml-64">
             <Suspense fallback={<PageSkeleton />}>
               {children}

@@ -50,7 +50,7 @@ export function DashboardSidebar({ onShowLogoutDialog }: DashboardSidebarProps) 
     <>
       <aside
         className={`
-          fixed lg:top-16 top-13 lg:pt-2 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-40
+          fixed lg:top-18 top-17 lg:pt-2 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-40
             transform transition-transform duration-300 ease-in-out
             flex flex-col
           ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}

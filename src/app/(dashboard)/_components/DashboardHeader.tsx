@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NotificationButton } from "@/components/common/notification-button"
 import { useApp } from "@/contexts/app-context"
+import { WarehouseSelectorMobile } from "@/components/common/warehouse-selector-mobile"
+import { WarehouseSelectorDesktop } from "@/components/common/warehouse-selector-desktop"
 
 interface DashboardHeaderProps {
   toggleNotificationPanel: () => void;
@@ -34,9 +36,9 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-4 w-7 lg:h-8 lg:w-20" priority />
+              <Image src="/wla.png" alt="Logo" width={40} height={40} unoptimized={true} className="h-7 w-19 lg:h-8 lg:w-20" priority />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col hidden sm:flex">
               <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
               <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
             </div>
@@ -50,6 +52,15 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
         <div className="flex items-center space-x-2 lg:space-x-3">
           {/* Notifications */}
           <NotificationButton onToggle={toggleNotificationPanel} unreadCount={unreadNotificationCount} />
+          {/* Mobile Warehouse Selector */}
+          <div className="lg:hidden">
+            <WarehouseSelectorMobile />
+          </div>
+
+          {/* Desktop Warehouse Selector */}
+          <div className="hidden lg:block">
+            <WarehouseSelectorDesktop />
+          </div>
         </div>
       </div>
     </header>

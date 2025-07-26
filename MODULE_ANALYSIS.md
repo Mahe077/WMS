@@ -4,69 +4,77 @@ This document provides an analysis of the current modular architecture of the WM
 
 ## Module Analysis
 
-The current architecture has a decent separation of concerns, but there are areas where the lines are blurred, leading to potential maintenance challenges as the application grows.
+The application generally follows a feature-based modular architecture, which is a good foundation for scalability and maintainability. However, there are still areas where further refinement can enhance clarity, reduce coupling, and improve adherence to best practices.
 
-### Detected Issues
+### Detected Issues and Current State
 
 1.  **Improper Separation of Concerns**:
-    *   **`AuthContext` Overload**: The `AuthContext` (`src/contexts/auth-context.tsx`) handled too many responsibilities. It managed authentication state, API calls for login and password reset, token management, and routing. This has been refactored by moving `AuthContext` to `src/providers/auth-provider.tsx` and extracting API calls and types to `src/features/auth/api` and `src/features/auth/types` respectively.
-    *   **Component-Level Fetching**: Components like `LoginPage` and `ForgotPasswordPage` contain logic for handling user input and form submission, but the actual API calls are abstracted away in `AuthContext`. This is a good first step, but the context itself is doing too much.
-    *   **`page.tsx` as a Controller**: The main `page.tsx` acts as a controller, deciding which module to render based on the application state. It also contains hardcoded data for the dashboard. This mixes presentation logic with data provisioning.
+    *   **`AuthContext` Overload**: The `AuthContext` (`src/contexts/auth-context.tsx`) previously handled too many responsibilities (authentication state, API calls, token management, routing). This has been partially addressed by moving `AuthContext` to `src/providers/auth-provider.tsx` and extracting API calls and types to `src/features/auth/api` and `src/features/auth/types` respectively. The `useAuth` hook now provides a cleaner interface.
+    *   **Dashboard Layout Modularization**: The `src/app/(dashboard)/layout.tsx` file has been successfully modularized. The main logic, state management, header, and sidebar have been extracted into dedicated components (`DashboardLayoutClient.tsx`, `DashboardHeader.tsx`, `DashboardSidebar.tsx`) within `src/app/(dashboard)/_components/`. This significantly improves separation of concerns and readability for the dashboard layout.
+    *   **`page.tsx` as a Controller (Historical)**: The original `page.tsx` (likely `src/app/page.tsx` or an older pattern) used to act as a controller with a large `switch` statement for rendering modules. With the adoption of Next.js App Router, this issue is largely mitigated as routing is handled by the file-system based routing, and each `page.tsx` is responsible for its own content.
 
 2.  **Overlaps or Coupling Between Modules**:
-    *   **`AuthContext` and `app-context`**: There's a dependency between `AuthContext` and `useNotifications` from `app-context`. While this is for showing notifications, it creates coupling between two different contexts.
-    *   **Hardcoded Module Rendering**: The main `page.tsx` has a large `switch` statement to render modules. This creates a tight coupling between the main page and all the feature modules. Adding a new module requires modifying this file.
+    *   **`AuthContext` and `app-context`**: There remains a dependency between `AuthContext` (now `AuthProvider`) and `useNotifications` from `app-context`. While necessary for displaying notifications related to auth actions, this still represents a direct coupling between two distinct contexts. Consider a more generic event/notification system if this becomes problematic.
 
-3.  **Ambiguous or “Catch-All” Files**:
-    *   **`lib/api/auth.ts`**: This file is well-named, but as the application grows, having a single `api` folder under `lib` could become a dumping ground for all API-related functions. It would be better to organize API calls by feature.
-    *   **`lib/types`**: The `lib/types` folder is a good start, but having a single `index.ts` to export all types can become unwieldy. It's better to have type files co-located with the features they belong to.
+3.  **Ambiguous or “Catch-All” Files/Folders**:
+    *   **`lib/types`**: The `src/lib/types` folder still contains a general `index.ts` exporting various types. While some shared types are acceptable, many types could be more appropriately co-located with the features they belong to (e.g., `customer.types.ts` could potentially move closer to a `customer` feature).
+    *   **`lib/const.ts` and `lib/enum.ts`**: These files centralize constants and enums. While useful, ensure that constants/enums highly specific to a single feature are moved into that feature's directory.
 
 4.  **Unused or Redundant Modules**:
-    *   **Simulated Logic**: The forgot password flow is entirely simulated on the frontend. The backend API calls are commented out, and the logic is not functional.
+    *   **Simulated Logic**: The forgot password flow still appears to be largely simulated on the frontend, with backend API calls commented out. This indicates incomplete functionality or placeholder logic.
 
-## Suggested Folder Restructure
+## Suggested Folder Restructure (Current State and Recommendations)
 
-To improve scalability and maintainability, I propose a feature-based folder structure. This structure co-locates all the code related to a specific feature in one place, making it easier to find and modify.
+The project largely adheres to a feature-based structure, which is good. The `_components` convention within route segments (`src/app/(dashboard)/_components/`) is a valid and common pattern for internal components.
 
 ```
 /src
 ├── /app
-│   ├── (features)                # Next.js app router routes
-│   │   ├── /dashboard
+│   ├── (dashboard)               # Next.js app router route group for dashboard
+│   │   ├── _components           # Internal components specific to dashboard layout/pages
+│   │   │   ├── DashboardHeader.tsx
+│   │   │   ├── DashboardSidebar.tsx
+│   │   │   └── DashboardLayoutClient.tsx
+│   │   ├── layout.tsx            # Thin wrapper for DashboardLayoutClient
+│   │   └── ... (other dashboard pages/routes)
+│   ├── (features)                # Other Next.js app router routes (e.g., login, access-denied)
 │   │   ├── /inventory
 │   │   ├── /login
-│   │   └── ... (other feature routes)
-│   ├── layout.tsx
-│   └── page.tsx                  # Main entry point
+│   │   └── ...
+│   ├── layout.tsx                # Root layout
+│   └── page.tsx                  # Root page
 ├── /components
-│   └── /ui                       # Reusable UI components (Button, Input, etc.)
+│   ├── /common                   # Reusable components used across multiple features
+│   ├── /ui                       # Reusable UI primitives (Button, Input, etc.)
+├── /contexts                     # Global React Contexts (e.g., app-context)
 ├── /features                     # Feature-specific logic and components
 │   ├── /auth
 │   │   ├── /api                  # API calls for authentication
-│   │   ├── /components           # Auth-related components (LoginForm, etc.)
 │   │   ├── /hooks                # Auth-related hooks
 │   │   └── /types                # Auth-related types
 │   ├── /inventory
-│   │   └── ... (similar structure for other features)
+│   │   ├── /components           # Inventory-specific components
+│   │   ├── /data                 # Mock/sample data for inventory
+│   │   └── /types                # Inventory-specific types
+│   └── ... (similar structure for other features)
+├── /hooks                        # Common custom hooks (e.g., use-filters, use-mobile)
 ├── /lib
-│   ├── /auth.ts                  # Core auth logic (permissions, etc.)
-│   ├── /utils.ts                 # Generic utility functions
+│   ├── /auth                     # Core auth logic (e.g., permissions.ts)
+│   ├── /pdf                      # PDF generation utilities
+│   ├── /types                    # Shared/global types (minimize usage)
+│   ├── const.ts                  # Global constants
+│   ├── enum.ts                   # Global enums
+│   ├── navigation-items.ts       # Centralized navigation data
+│   └── utils.ts                  # Generic utility functions
 ├── /providers                    # All application providers (Auth, App, etc.)
-└── /hooks                        # Common hooks (use-local-storage, etc.)
 ```
 
 ## Code Refactor Suggestions
 
-Based on the suggested folder restructure, here are some specific code refactoring suggestions:
+1.  **Refine Type Co-location**: Review `src/lib/types` and move types that are exclusively used by a single feature into that feature's `types` subdirectory (e.g., `src/features/inventory/types/inventory.types.ts`). Keep only truly global or widely shared types in `src/lib/types`.
 
-1.  **Decouple `page.tsx`**:
-    *   **Use a routing solution**: Instead of a giant `switch` statement, use a more dynamic routing solution. The Next.js app router already handles this. The main `page.tsx` should be a simple layout, and the feature modules should be rendered as separate pages.
-    *   **Fetch data in components**: The dashboard data should be fetched within the `DashboardModule` component, not in the main `page.tsx`.
+2.  **Complete Simulated Logic**: Prioritize completing the backend integration for simulated flows (e.g., forgot password) to ensure full functionality and remove misleading placeholder logic.
 
-2.  **Organize API Calls**:
-    *   Create separate API files for each feature under `src/features/<feature>/api`. For example, `src/features/inventory/api/index.ts` would contain all API calls related to inventory.
+3.  **Review Global Constants/Enums**: While `src/lib/const.ts` and `src/lib/enum.ts` are useful, periodically review them to ensure that items are truly global. If a constant or enum is only used within one feature, consider moving it to that feature's directory.
 
-3.  **Co-locate Types**:
-    *   Move the type definitions from `src/lib/types` to the feature folders they belong to. For example, `User` and `Auth` related types should be in `src/features/auth/types/index.ts`.
-
-By implementing these changes, the WMS-FE application will have a more robust and scalable architecture, making it easier to maintain and extend in the future.
+By continuing to refine these areas, the WMS-FE application will further enhance its modularity, making it more robust, easier to understand, and more efficient to develop and maintain.

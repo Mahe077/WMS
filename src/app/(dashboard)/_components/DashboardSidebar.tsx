@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useApp } from "@/contexts/app-context"
 import { useAuth } from "@/features/auth/hooks/useAuth"
 import { navigationItems } from "@/lib/navigation-items"
+import { Badge } from "@/components/ui/badge"
 
 interface DashboardSidebarProps {
   onShowLogoutDialog: () => void;
@@ -47,33 +48,62 @@ export function DashboardSidebar({ onShowLogoutDialog }: DashboardSidebarProps) 
 
   return (
     <>
-      <nav
+      <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out
+          fixed lg:top-18 top-17 lg:pt-2 left-0 bottom-0 w-64 bg-white border-r border-gray-200 z-40
+            transform transition-transform duration-300 ease-in-out
+            flex flex-col
           ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="p-4 pt-20 lg:pt-4">
+        {/* Navigation Items - Scrollable Area */}
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-1">
             {memoizedNavigationItems}
           </div>
+        </div>
 
-          {/* Mobile-only logout section */}
-          <div className="pt-6 mt-6 border-t border-gray-200">
+        {/* Fixed Logout Button at Bottom of Sidebar */}
+        {/* Fixed User Information Section at Bottom of Screen */}
+        <div
+          className={`
+          fixed bottom-0 left-0 w-64 bg-white border-t border-r border-gray-200 p-4 z-50
+          transform transition-transform duration-300 ease-in-out
+          shadow-lg
+          ${state.sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="relative flex-shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                {authState.user?.name?.charAt(0)?.toUpperCase() || "U"}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-gray-900 truncate">{authState.user?.name}</div>
+              {/* <div className="text-xs text-gray-500 truncate">{authState.user?.email}</div> */}
+              <div className="mt-1">
+                <Badge variant="outline" className="text-xs capitalize">
+                  {authState.user?.role}
+                </Badge>
+              </div>
+            </div>
             <Button
               variant="ghost"
-              className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+              size="sm"
+              className="p-2 text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition-colors flex-shrink-0"
               onClick={() => {
                 dispatch({ type: "SET_SIDEBAR_OPEN", payload: false });
                 onShowLogoutDialog();
               }}
+              title="Settings"
             >
-              <LogOut className="h-4 w-4 mr-3" />
-              Logout
+              <LogOut className="h-4 w-4 mr-3 text-red-400" />
             </Button>
           </div>
         </div>
-      </nav>
+      </aside>
 
       {/* Overlay for mobile */}
       {state.sidebarOpen && (

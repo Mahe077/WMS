@@ -6,8 +6,8 @@ import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { NotificationButton } from "@/components/common/notification-button"
-import { UserProfileButton } from "@/components/common/user-profile-button"
 import { useApp } from "@/contexts/app-context"
+import { WarehouseSelector } from "@/components/common/warehouse-selector"
 
 interface DashboardHeaderProps {
   toggleNotificationPanel: () => void;
@@ -18,7 +18,7 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
   const { state, dispatch } = useApp();
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 sticky top-0 z-40 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 lg:px-6 py-3 z-50 shadow-sm">
       <div className="flex items-center justify-between">
         {/* Left Section - Logo and Mobile Menu */}
         <div className="flex items-center space-x-4">
@@ -35,9 +35,9 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <Image src="/wla.png" alt="Logo" width={40} height={40} className="h-4 w-7 lg:h-8 lg:w-20" priority />
+              <Image src="/wla.png" alt="Logo" width={40} height={40} unoptimized={true} className="h-7 w-19 lg:h-8 lg:w-20" priority />
             </div>
-            <div className="flex flex-col">
+            <div className="hidden sm:flex sm:flex-col">
               <h1 className="text-xl lg:text-2xl font-bold text-gray-900 leading-tight">Waratah Logistics</h1>
               <span className="text-xs text-gray-500 hidden sm:block">Manage you Inventory</span>
             </div>
@@ -51,9 +51,7 @@ export function DashboardHeader({ toggleNotificationPanel, unreadNotificationCou
         <div className="flex items-center space-x-2 lg:space-x-3">
           {/* Notifications */}
           <NotificationButton onToggle={toggleNotificationPanel} unreadCount={unreadNotificationCount} />
-
-          {/* User Profile */}
-          <UserProfileButton/>
+          <WarehouseSelector />
         </div>
       </div>
     </header>

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react"
 import { useNotifications } from "@/contexts/app-context"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { warehouses } from "@/lib/sample-data/warehouses"
 
 export interface WarehouseItem {
   id: string
@@ -14,59 +15,6 @@ export interface WarehouseItem {
   currentLoad: number
   staff: number
 }
-
-const warehouses: WarehouseItem[] = [
-  {
-    id: "WH001",
-    name: "Main Distribution Center",
-    location: "Atlanta, GA",
-    code: "ATL-DC",
-    status: "active",
-    capacity: 50000,
-    currentLoad: 32500,
-    staff: 45,
-  },
-  {
-    id: "WH002",
-    name: "West Coast Hub",
-    location: "Los Angeles, CA",
-    code: "LAX-HUB",
-    status: "active",
-    capacity: 35000,
-    currentLoad: 28900,
-    staff: 32,
-  },
-  {
-    id: "WH003",
-    name: "Northeast Facility",
-    location: "Newark, NJ",
-    code: "EWR-FAC",
-    status: "active",
-    capacity: 42000,
-    currentLoad: 18750,
-    staff: 38,
-  },
-  {
-    id: "WH004",
-    name: "Chicago Processing",
-    location: "Chicago, IL",
-    code: "CHI-PROC",
-    status: "maintenance",
-    capacity: 28000,
-    currentLoad: 0,
-    staff: 15,
-  },
-  {
-    id: "WH005",
-    name: "Texas Regional",
-    location: "Dallas, TX",
-    code: "DFW-REG",
-    status: "active",
-    capacity: 38000,
-    currentLoad: 22100,
-    staff: 29,
-  },
-]
 
 const ALL_WAREHOUSES_ITEM: WarehouseItem = {
   id: "ALL",
@@ -104,7 +52,7 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
     } else if (userAssignedWarehouseIds.length > 0) {
       return warehouses.filter(wh => userAssignedWarehouseIds.includes(wh.id));
     } else {
-      return warehouses.length > 0 ? [warehouses[0]] : []; // Return an empty array if warehouses is empty
+      return [warehouses[0]]; // Default to the first warehouse if no specific assignments
     }
   }, [canViewAllWarehouses, userAssignedWarehouseIds]);
 
@@ -113,20 +61,16 @@ export const WarehouseProvider = ({ children }: { children: ReactNode }) => {
       return ALL_WAREHOUSES_ITEM;
     } else if (userAssignedWarehouseIds.length > 0) {
       const firstAssigned = warehouses.find(wh => userAssignedWarehouseIds.includes(wh.id));
-      return firstAssigned || (warehouses.length > 0 ? warehouses[0] : null); // Fallback to null if warehouses is empty
+      return firstAssigned || warehouses[0]; // Fallback to first if assigned not found
     } else {
-      return warehouses.length > 0 ? warehouses[0] : null; // Return null if warehouses is empty
+      return warehouses[0];
     }
   });
 
   useEffect(() => {
     // If selected warehouse is no longer in the filtered list, reset it
     if (!filteredWarehouses.some(wh => wh.id === selectedWarehouse.id)) {
-      if (filteredWarehouses.length > 0) {
-        setSelectedWarehouse(filteredWarehouses[0]);
-      } else {
-        console.error("Filtered warehouses is empty. Unable to set selected warehouse.");
-      }
+      setSelectedWarehouse(filteredWarehouses[0]);
     }
   }, [filteredWarehouses, selectedWarehouse]);
 

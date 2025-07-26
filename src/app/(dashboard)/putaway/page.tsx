@@ -9,7 +9,7 @@ export default function PutawayPage() {
                 {/* Warehouse Selector */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Put Away</h2>
+                        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Putaway</h2>
                         <p className="text-muted-foreground">Manage order processing, picking, and packing</p>
                     </div>
                 </div>

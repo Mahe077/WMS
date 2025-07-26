@@ -19,18 +19,18 @@ import { Button } from "@/components/ui/button";
 import { PickListItemStages } from "@/lib/enum";
 import { usePagination } from "@/contexts/app-context";
 import { PickListItem } from "../types/order.types";
+import { useWarehouse } from "@/contexts/warehouse-context";
 
 interface PickListViewProps {
   pickListData: PickListItem[];
-  selectedWarehouse?: string;
-  warehouses?: { id: string; name: string }[];
   getStatusBadge?: (status: string) => React.ReactNode;
   getPriorityBadge?: (priority: string) => React.ReactNode;
 }
 
-export function PickListView({ 
-  pickListData,
+export function PickListView({
+  pickListData
  }: PickListViewProps) {
+  const { selectedWarehouse } = useWarehouse();
   // Filter states for pick list
   const [pickStrategy, setPickStrategy] = useState("fifo");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -46,7 +46,7 @@ export function PickListView({
       item.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   })
-  
+
   const {
     currentPage,
     itemsPerPage,
@@ -58,7 +58,7 @@ export function PickListView({
 
   const paginatedPickList = getPageItems(filteredPickList);
 
-    const handleItemsPerPageChange = (newItemsPerPage: number) => {
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
     setPagination({ itemsPerPage: newItemsPerPage, currentPage: 1 });
   };
 
@@ -182,22 +182,27 @@ export function PickListView({
   );
 
   return (
-    <CustomTable
-      title="Pick List - ORD-2024-001"
-      description="Retail Chain A • Priority: High • Due: 2024-01-16 14:00"
-      columns={pickListColumns}
-      data={paginatedPickList}
-      renderFilters={renderPickListFilters}
-      renderCustomActions={renderPickListActions}
-      renderTableActions={renderPickListTableActions}
-      showDefaultActions={false}
-      onRowAction={(action, row) => console.log(action, row)}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      itemsPerPage={itemsPerPage}
-      totalItemsCount={paginatedPickList.length}
-      handleItemsPerPageChange={handleItemsPerPageChange}
-      goToPage={goToPage}
-    />
+    <>
+      <div className="mb-2 text-sm text-muted-foreground">
+        Warehouse: {selectedWarehouse.name}
+      </div>
+      <CustomTable
+        title="Pick List - ORD-2024-001"
+        description="Retail Chain A • Priority: High • Due: 2024-01-16 14:00"
+        columns={pickListColumns}
+        data={paginatedPickList}
+        renderFilters={renderPickListFilters}
+        renderCustomActions={renderPickListActions}
+        renderTableActions={renderPickListTableActions}
+        showDefaultActions={false}
+        onRowAction={(action, row) => console.log(action, row)}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        totalItemsCount={paginatedPickList.length}
+        handleItemsPerPageChange={handleItemsPerPageChange}
+        goToPage={goToPage}
+      />
+    </>
   );
 }
